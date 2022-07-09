@@ -1,0 +1,54 @@
+* {
+    margin: 0;
+    background-color: #222;
+    font-family: monospace;
+    overflow: hidden;
+}
+
+nav {
+    width: 1920;
+    height: 32px;
+    background-color: blue;
+    display: flex;
+    flex-direction: row;
+}
+
+button {
+    margin: 0;
+    width: 64px;
+    height: 32px;
+    border: none;
+    background-color: rgb(255, 0, 255);
+} button:hover {background-color: rgb(255, 100, 255); }
+
+.canvas {
+    margin: 0;
+    display: inline;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: auto auto;
+}
+
+.menu {
+    width: 512px;
+    display: inline;
+}
+
+.inventory {
+    background-color: green;
+    padding: 1em;
+    height: 824px;
+}
+
+.admin-log {
+    background-color: yellow;
+    padding: 1em;
+    height: 200px;
+    overflow-y: hidden;
+}
+
+/* MICRO STYLES */
+.hide { display: none; }
+.yellow-bkg { background-color: yellow; }
