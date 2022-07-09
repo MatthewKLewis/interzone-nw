@@ -83,24 +83,64 @@ class World {
         } else {
             console.log("creating new world")
             this.initialNoise();
-            this.smooth()
+            this.smooth(3);
+            this.zigguratize();
+            this.addElevationNoise();
         }
     }
 
     initialNoise() {
-        for (let x = 0; x < (cnv.width / PIXEL_WIDTH); x++) {
-            for (let y = 0; y < (cnv.height / PIXEL_WIDTH); y++) {
-                this.regions.push(new Region(x, y, Math.floor(Math.random() * 10)))
+        for (let y = 0; y < (cnv.height / PIXEL_WIDTH); y++) {
+            for (let x = 0; x < (cnv.width / PIXEL_WIDTH); x++) {
+                this.regions.push(new Region(x, y, Math.random() > 0.42 ? 1 : 0))
             }
         }
     }
 
-    smooth() {
-        console.log("neighbors:")
-        console.log(this.getNeighboringRegions(0))
+    smooth(iterations = 1) {
+        for (let i = 0; i < iterations; i++) {
+            for (let i = 0; i < this.regions.length; i++) {
+                const neighboringRegions = this.getNeighboringRegions(i);
+                let totalSum = 0
+                let lengthNonNull = 0
+                for (let i = 0; i < neighboringRegions.length; i++) {
+                    if (neighboringRegions[i]) {
+                        totalSum += neighboringRegions[i].elevation;
+                        lengthNonNull++;
+                    }
+                }
+                if (totalSum == 3 || totalSum == 4) {
+                    this.regions[i].elevation = 1;
+                }
+                if (totalSum == 1 || totalSum == 0) {
+                    this.regions[i].elevation = 0;
+                }
+            }
+        }
+    }
 
+    zigguratize(iterations = 9) {
+        for (let currentLevel = 0; currentLevel < iterations; currentLevel++) {
+
+            for (let i = 0; i < this.regions.length; i++) {
+                const neighboringRegions = this.getNeighboringRegions(i);
+                let raise = true;
+                for (let j = 0; j < neighboringRegions.length; j++) {
+                    if (neighboringRegions[j] && neighboringRegions[j].elevation <= currentLevel) {
+                        raise = false;
+                    }
+                }
+                if (raise) { this.regions[i].elevation = (this.regions[i].elevation + 1) }
+            }
+
+        }
+    }
+
+    addElevationNoise() {
         for (let i = 0; i < this.regions.length; i++) {
-            let neighboringRegions = this.getNeighboringRegions(i);
+            if (this.regions[i].elevation != 0 && this.regions[i].elevation != 9) {
+                Math.random() > 0.8 ? this.regions[i].elevation++ : null
+            }
         }
     }
 
@@ -115,9 +155,9 @@ class World {
     getNeighboringRegions(regionIndex) {
         let neiReg = []
         neiReg[0] = this.regions[regionIndex - 88] || null; //NORTH
-        neiReg[1] = this.regions[regionIndex + 1 ] || null; //EAST
+        neiReg[1] = this.regions[regionIndex + 1] || null; //EAST
         neiReg[2] = this.regions[regionIndex + 88] || null; //SOUTH
-        neiReg[3] = this.regions[regionIndex - 1 ] || null; //WEST
+        neiReg[3] = this.regions[regionIndex - 1] || null; //WEST
         return neiReg;
     }
 
@@ -129,7 +169,10 @@ class Region {
         this.name = generateSciFiName(3);
         this.x = x;
         this.y = y;
+        this.index = x + (y * 88)
         this.elevation = elevation;
+        this.latitude = Math.abs(32 - y); //range from 1 to 32
+        this.temperature = 99 - (this.latitude * 2.5) - (this.elevation * 10);
     }
 
     getTileAtMouse(x, y) {
@@ -166,7 +209,7 @@ class Player extends Actor {
 
 //#region [rgba(255,0,125,0.15)] INPUTS
 
-cnv.addEventListener('click', (e)=>{
+cnv.addEventListener('click', (e) => {
     let pointerX = e.clientX - e.target.offsetLeft;
     let pointerY = e.clientY - e.target.offsetTop;
 
@@ -175,13 +218,18 @@ cnv.addEventListener('click', (e)=>{
     addLog(tileX + ":" + tileY);
 })
 
-cnv.addEventListener('mousemove', (e)=>{
+cnv.addEventListener('mousemove', (e) => {
     let pointerX = e.clientX - e.target.offsetLeft;
     let pointerY = e.clientY - e.target.offsetTop;
 
     if (worldMap) {
         mouseoverRegion = world.getRegionAtMouse(pointerX, pointerY);
-        lookDisplay.innerText = mouseoverRegion.name;
+        lookDisplay.innerText =
+            mouseoverRegion.name + '\n' +
+            mouseoverRegion.elevation + '00 ft \n' +
+            mouseoverRegion.temperature + '° Fahrenheit \n' +
+            mouseoverRegion.latitude + `' Latitude \n`
+
     } else {
         mouseoverTile = currentRegion.getTileAtMouse(pointerX, pointerY);
     }
@@ -245,7 +293,7 @@ function continueGame() {
 
 function quit() {
     fs.writeFile('./assets/world.json', JSON.stringify(world), err => {
-        if (err) {nw.App.quit();}
+        if (err) { nw.App.quit(); }
         nw.App.quit();
     });
 }
@@ -305,28 +353,10 @@ function drawCanvas() {
     for (let i = 0; i < world.regions.length; i++) {
         //world
         ctx.fillStyle = "#" + world.regions[i].elevation + world.regions[i].elevation + world.regions[i].elevation;
+
         switch (world.regions[i].elevation) {
-            case 1:
-                ctx.fillStyle = 'blue'                
-                break;        
-            case 2:                
-                break;        
-            case 3:                
-                break;        
-            case 4:                
-                break;        
-            case 5:                
-                break;        
-            case 6:                
-                break;        
-            case 7:
-                break;
-            case 8:             
-                break;
-            case 9:        
-            ctx.fillStyle = 'white'         
-                break;
-            default:
+            case 0:
+                ctx.fillStyle = 'darkblue';
                 break;
         }
 
