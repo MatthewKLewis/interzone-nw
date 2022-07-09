@@ -1,13 +1,18 @@
-//#region [rgba(0,0,255,0.15)] IMPORTS AND CONSTANTS
+//#region [rgba(0,0,255,0.15)] IMPORTS, CONSTANTS, GLOBAL STATE
 
 const fs = require('fs');
 const cnv = document.querySelector('#canvas');
 const log = document.querySelector('#admin-log');
+const mainMenu = document.querySelector('#main-menu');
 cnv.width = 1408;
 cnv.height = 1024;
 const ctx = cnv.getContext("2d");
 console.log(ctx);
 const PIXEL_WIDTH = 16;
+
+let paused = true;
+let time = 0;
+let world = {};
 
 //#endregion
 
@@ -39,9 +44,6 @@ class World {
 
 class Region {
     name = "reg"
-    x;
-    y;
-    i;
     constructor(x, y, i) {
         this.x = x;
         this.y = y;
@@ -50,9 +52,6 @@ class Region {
 }
 
 class Tile {
-    x;
-    y;
-    i;
     constructor(x, y, i) {
         this.x = x;
         this.y = y;
@@ -60,6 +59,21 @@ class Tile {
     }
 }
 
+class Actor {
+    constructor(name, x, y, alive) {
+        this.name = name;
+        this.x = x;
+        this.y = y;
+        this.alive = alive;
+    }
+}
+
+class Player extends Actor {
+    constructor(name, x, y, alive, playerName) {
+        super(name, x, y, alive);
+        this.playerName = playerName;
+    }
+}
 //#endregion
 
 //#region [rgba(255,0,125,0.15)] INPUTS
@@ -72,7 +86,13 @@ function quit() {
 }
 
 cnv.addEventListener('click', (e)=>{
-    addLog(e.clientX + " " + e.clientY)
+    console.log(e);
+    let pointerX = e.clientX - e.target.offsetLeft;
+    let pointerY = e.clientY - e.target.offsetTop;
+
+    let tileX = Math.floor(pointerX / 16)
+    let tileY = Math.floor(pointerY / 16)
+    addLog(tileX + ":" + tileY);
 })
 
 document.addEventListener('keydown', (e) => {
@@ -100,25 +120,34 @@ document.addEventListener('keydown', (e) => {
 
 //#endregion
 
-//#region [rgba(255,125,0,0.15)] LOAD WORLD
-
-let world = {};
-console.log('loading world...');
-fs.readFile('./assets/world.json', "utf-8", (err, data) => {
-    if (err) {
-        console.log(err);
-        return;
-    }
-    world = JSON.parse(data);
-
-    if (!world.name) {
-        world = new World();
-    }
-
-    //start loop here
-    console.log('world loaded');
+//#region [rgba(255,125,0,0.15)] MAIN MENU
+function newGame() {
+    world = new World();
+    toggleMainMenu()
     gameLoop();
-})
+}
+
+function continueGame() {
+    fs.readFile('./assets/world.json', "utf-8", (err, data) => {
+        if (err) {
+            console.log(err);
+            return;
+        }
+        world = JSON.parse(data);
+        toggleMainMenu()
+        gameLoop();
+    })
+}
+
+function toggleMainMenu() {
+    if (paused) {
+        console.log('showing mm');
+        mainMenu.classList.add('hide')
+    } else {
+        console.log('hiding mm');
+        mainMenu.classList.remove('hide')
+    }
+}
 
 //#endregion
 
