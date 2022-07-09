@@ -23,9 +23,41 @@
     <div class="grid">
         <canvas id="canvas"></canvas>
         <div class="menu">
-            <div class="inventory">Inventory</div>
-            <div class="admin-log" id="admin-log"></div>
+            <div class="player-interface">
+                
+                <div class="tab-row">
+                    <button id="proximity-tab" onclick="changePlayerMenuTo('proximity')" class="tab active">proximity</button>
+                    <button id="inventory-tab" onclick="changePlayerMenuTo('inventory')" class="tab">inventory</button>
+                    <button id="journal-tab" onclick="changePlayerMenuTo('journal')" class="tab">journal</button>
+                    <button id="character-tab" onclick="changePlayerMenuTo('character')" class="tab">character</button>
+                </div>
+
+                <div id="proximity" class="sub-interface">
+                    <p id="timer">Time</p>
+
+                </div>
+
+                <div id="inventory" class="sub-interface hide">
+                    
+
+                </div>
+
+                <div id="journal" class="sub-interface hide">
+                    
+
+                </div>
+
+                <div id="character" class="sub-interface hide">
+                    <p id="timer">Time</p>
+                    <p id="player-name">Player Name</p>
+                </div>
+
+            </div>
+            <div class="admin-log" id="admin-log">
+                <!--Admin logs will fill here-->
+            </div>
         </div>
+        <footer></footer>
     </div>
     <script src="./main.js"></script>
 </body>

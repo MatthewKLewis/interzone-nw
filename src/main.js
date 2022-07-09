@@ -1,19 +1,53 @@
-//#region [rgba(0,0,255,0.15)] IMPORTS, CONSTANTS, GLOBAL STATE
-
+//#region [rgba(0,0,255,0.15)] IMPORTS, CONSTANTS, GLOBAL STATE, UTILITY
 const fs = require('fs');
 const cnv = document.querySelector('#canvas');
-const log = document.querySelector('#admin-log');
+
 const mainMenu = document.querySelector('#main-menu');
+
+const proximityTab = document.querySelector('#proximity-tab');
+const inventoryTab = document.querySelector('#inventory-tab');
+const journalTab = document.querySelector('#journal-tab');
+const characterTab = document.querySelector('#character-tab');
+
+const proximityMenu = document.querySelector('#proximity');
+const inventoryMenu = document.querySelector('#inventory');
+const journalMenu = document.querySelector('#journal');
+const characterMenu = document.querySelector('#character');
+
+//proximity
+const timer = document.querySelector('#timer');
+const playerNameDisplay = document.querySelector('#player-name');
+
+const log = document.querySelector('#admin-log');
+
 cnv.width = 1408;
 cnv.height = 1024;
 const ctx = cnv.getContext("2d");
 console.log(ctx);
 const PIXEL_WIDTH = 16;
 
+const VOWELS = "aeiouy".split('');
+const CONSONANTS = "bcdfghjklmnpqrstvwxz".split('');
+let SYLLABLES = []
+for (let i = 0; i < CONSONANTS.length; i++) {
+    for (let j = 0; j < VOWELS.length; j++) {
+        SYLLABLES.push(CONSONANTS[i] + VOWELS[j])
+    }
+}
+
 let paused = true;
 let time = 0;
 let world = {};
+let player = {};
 
+function generateSciFiName(syllables = 3) {
+    let retStr = ''
+    for (let i = 0; i < syllables; i++) {
+        retStr += SYLLABLES[Math.floor(Math.random() * SYLLABLES.length)]
+    }
+    return retStr
+}
+function convertXYToTileIndex(x, y) { }
 //#endregion
 
 //#region [rgba(0,255,0,0.15)] ADMIN LOG
@@ -23,6 +57,9 @@ function addLog(text) {
     let el = document.createElement('p');
     el.innerText = text
     el.classList.add('yellow-bkg')
+    if (log.childNodes.length > 10) {
+        log.removeChild(log.firstChild);
+    }
     log.appendChild(el);
 }
 
@@ -43,8 +80,8 @@ class World {
 }
 
 class Region {
-    name = "reg"
     constructor(x, y, i) {
+        this.name = generateSciFiName(3);
         this.x = x;
         this.y = y;
         this.i = i;
@@ -78,15 +115,7 @@ class Player extends Actor {
 
 //#region [rgba(255,0,125,0.15)] INPUTS
 
-function quit() {
-    fs.writeFile('./assets/world.json', JSON.stringify(world), err => {
-        if (err) {nw.App.quit();}
-        nw.App.quit();
-    });
-}
-
 cnv.addEventListener('click', (e)=>{
-    console.log(e);
     let pointerX = e.clientX - e.target.offsetLeft;
     let pointerY = e.clientY - e.target.offsetTop;
 
@@ -95,20 +124,32 @@ cnv.addEventListener('click', (e)=>{
     addLog(tileX + ":" + tileY);
 })
 
+cnv.addEventListener('mousemove', (e)=>{
+    let pointerX = e.clientX - e.target.offsetLeft;
+    let pointerY = e.clientY - e.target.offsetTop;
+    let tileX = Math.floor(pointerX / 16)
+    let tileY = Math.floor(pointerY / 16)
+    addLog("mouse:" + tileX + ":" + tileY);
+})
+
 document.addEventListener('keydown', (e) => {
-    //console.log(e);
+    console.log('player acts')
     switch (e.key) {
         case 'w':
             addLog('move up')
+            player.y--;
             break;
         case 'a':
             addLog('move left')
+            player.x--;
             break;
         case 's':
-            addLog('move right')
+            addLog('move down')
+            player.y++;
             break;
         case 'd':
-            addLog('move down')
+            addLog('move right')
+            player.x++;
             break;
         case 'Escape':
             quit();
@@ -116,13 +157,15 @@ document.addEventListener('keydown', (e) => {
         default:
             break;
     }
+    gameLoop();
 })
 
 //#endregion
 
-//#region [rgba(255,125,0,0.15)] MAIN MENU
+//#region [rgba(255,125,0,0.15)] MENUS
 function newGame() {
     world = new World();
+    player = new Player('Matthew', 0, 0, true);
     toggleMainMenu()
     gameLoop();
 }
@@ -134,9 +177,17 @@ function continueGame() {
             return;
         }
         world = JSON.parse(data);
+        player = new Player('Matthew', 0, 0, true);
         toggleMainMenu()
         gameLoop();
     })
+}
+
+function quit() {
+    fs.writeFile('./assets/world.json', JSON.stringify(world), err => {
+        if (err) {nw.App.quit();}
+        nw.App.quit();
+    });
 }
 
 function toggleMainMenu() {
@@ -149,14 +200,59 @@ function toggleMainMenu() {
     }
 }
 
+function changePlayerMenuTo(newMenu) {
+    proximityMenu.classList.add('hide');
+    inventoryMenu.classList.add('hide');
+    journalMenu.classList.add('hide');
+    characterMenu.classList.add('hide');
+    proximityTab.classList.remove('active');
+    inventoryTab.classList.remove('active');
+    journalTab.classList.remove('active');
+    characterTab.classList.remove('active');
+    switch (newMenu) {
+        case 'proximity':
+            proximityMenu.classList.remove('hide');
+            proximityTab.classList.add('active');
+            break;
+        case 'inventory':
+            inventoryMenu.classList.remove('hide');
+            inventoryTab.classList.add('active');
+            break;
+        case 'journal':
+            journalMenu.classList.remove('hide');
+            journalTab.classList.add('active');
+            break;
+        case 'character':
+            characterMenu.classList.remove('hide');
+            characterTab.classList.add('active');
+            break;
+    }
+}
+
+//#endregion
+
+//#region [rgba(0,125,255,0.15)] RENDERING
+function render() {
+    drawMenus();
+    drawCanvas();
+}
+
+function drawMenus() {
+    timer.innerText = time;
+}
+
+function drawCanvas() {
+    for (let i = 0; i < world.regions.length; i++) {
+        ctx.fillStyle = world.regions[i].i == 0 ? 'black' : 'white';
+        ctx.fillRect(world.regions[i].x * PIXEL_WIDTH, world.regions[i].y * PIXEL_WIDTH, PIXEL_WIDTH, PIXEL_WIDTH);
+        ctx.fillStyle = 'red';
+        ctx.fillRect(player.x * PIXEL_WIDTH, player.y * PIXEL_WIDTH, PIXEL_WIDTH, PIXEL_WIDTH)
+    }
+}
 //#endregion
 
 function gameLoop() {
-    console.log('start loop!')
-    for (let i = 0; i < world.regions.length; i++) {
-        ctx.fillStyle = world.regions[i].i == 0 ? 'black' : 'white';
-        if (i == world.regions.length - 1) ctx.fillStyle = 'red';
-        ctx.fillRect(world.regions[i].x * PIXEL_WIDTH, world.regions[i].y * PIXEL_WIDTH, PIXEL_WIDTH, PIXEL_WIDTH);
-    }
-    console.log('end loop!')
+    console.log('world acts')
+    time++;
+    render();
 }
