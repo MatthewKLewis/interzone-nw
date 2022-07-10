@@ -13,6 +13,62 @@ class RegionPeek {
 
         this.tileUrl = 'grass.png'
     }
+
+    assignImage() {
+        if (this.temperature < 32) {
+            if (this.elevation == 0) {
+                this.tileUrl = 'ice.png'
+            }
+        }
+        else if (this.temperature >= 32 && this.temperature < 85) {
+            switch (this.elevation) {
+                case 0:
+                    this.tileUrl = 'water.png'
+                    break;
+                case 1:
+                    this.tileUrl = 'beach.png'
+                    break;
+                case 2:
+                    this.tileUrl = 'grass.png'
+                    break;
+                case 3:
+                    this.tileUrl = 'forest.png'
+                    break;
+                case 4:
+                    this.tileUrl = 'rock2.png'
+                    break;            
+                case 5:
+                    this.tileUrl = 'rock.png'
+                    break;            
+                default:
+                    break;
+            }
+        }
+        else if (this.temperature >= 85) {
+            switch (this.elevation) {
+                case 0:
+                    this.tileUrl = 'water.png'
+                    break;
+                case 1:
+                    this.tileUrl = 'beach.png'
+                    break;
+                case 2:
+                    this.tileUrl = 'grass.png'
+                    break;
+                case 3:
+                    this.tileUrl = 'forest.png'
+                    break;
+                case 4:
+                    this.tileUrl = 'rock2.png'
+                    break;            
+                case 5:
+                    this.tileUrl = 'rock.png'
+                    break;            
+                default:
+                    break;
+            }
+        }
+    }
 }
 
 module.exports = RegionPeek;

@@ -2,6 +2,11 @@ const fs = require('fs');
 const RegionPeek = require('./regionPeek');
 const SciFi = require('./scifi')
 
+//
+// The world class reaches down into the RegionPeeks and alters their elevation and images.
+// This should be the only world, and the only class that reaches in to RegionPeek
+//
+
 class World {
     regions = [];
     constructor(regions = []) {
@@ -14,6 +19,7 @@ class World {
             this.smooth(3);
             this.zigguratize();
             this.addElevationNoise();
+            this.assignImages();
             this.saveWorld();
         }
     }
@@ -71,6 +77,12 @@ class World {
             if (this.regions[i].elevation != 0 && this.regions[i].elevation != 9) {
                 Math.random() > 0.8 ? this.regions[i].elevation++ : null
             }
+        }
+    }
+
+    assignImages() {
+        for (let i = 0; i < this.regions.length; i++) {
+            this.regions[i].assignImage();
         }
     }
 
