@@ -92,6 +92,7 @@ class World {
             this.smooth(3);
             this.zigguratize();
             this.addElevationNoise();
+            this.saveWorld();
         }
     }
 
@@ -166,6 +167,14 @@ class World {
         return neiReg;
     }
 
+    saveWorld() {
+        fs.writeFile('./assets/world/world.json', JSON.stringify(world), err => {
+            if (err) {
+                //error condition
+            }
+        });
+    }
+
 }
 
 class RegionPeek {
@@ -184,15 +193,50 @@ class Region {
     tiles = [];
     constructor(regionPeek = {}, regionFullData = {}) {
         if (regionPeek) {
-            console.log('make a full region from: ');
-            console.log(regionPeek);
+            console.log('create a new full region from: ');
+
+            this.name = regionPeek.name;
+            this.x = regionPeek.x;
+            this.y = regionPeek.y;
+            this.index = regionPeek.index;
+            this.elevation = regionPeek.elevation;
+            this.latitude = regionPeek.latitude;
+            this.temperature = regionPeek.temperature;
+
+            this.initialNoise();
+            this.saveRegion();
         }
         else if (regionFullData) {
-            console.log('reconstitute region from file ');
+            console.log('reconstitute region from file with tiles');
+            this.name = regionFullData.name;
+            this.x = regionFullData.x;
+            this.y = regionFullData.y;
+            this.index = regionFullData.index;
+            this.elevation = regionFullData.elevation;
+            this.latitude = regionFullData.latitude;
+            this.temperature = regionFullData.temperature;
+
+            this.tiles = regionFullData.tiles
         }
         else {
             console.log('error creating region')
         }
+    }
+
+    initialNoise() {
+        for (let y = 0; y < (cnv.height / PIXEL_WIDTH); y++) {
+            for (let x = 0; x < (cnv.width / PIXEL_WIDTH); x++) {
+                this.tiles.push(new Tile(x, y, Math.random() > 0.42 ? 1 : 0))
+            }
+        }
+    }
+
+    saveRegion() {
+        fs.writeFile(`./assets/world/region${this.index}.json`, JSON.stringify(this), err => {
+            if (err) {
+                //error condition
+            }
+        });
     }
 
     getTileAtMouse(x, y) {
@@ -203,10 +247,10 @@ class Region {
 }
 
 class Tile {
-    constructor(x, y, i) {
+    constructor(x, y, wall) {
         this.x = x;
         this.y = y;
-        this.i = i;
+        this.wall = wall;
     }
 }
 
@@ -234,11 +278,6 @@ class Player extends Actor {
             case 'left': this.x--; break;
         }
         this.index = convertXYToIndex(this.x, this.y);
-        gameLoop();
-    }
-
-    descendToRegion() {
-        loadRegion(this.index);
         gameLoop();
     }
 }
@@ -291,8 +330,7 @@ document.addEventListener('keydown', (e) => {
             player.move('left');
             break;
         case 'q':
-            addLog('moving into region')
-            player.descendToRegion()
+            addLog('moving into or out of region')
             break;
         case 'Escape':
             quit();
@@ -334,56 +372,7 @@ function quit() {
         nw.App.quit();
     });
 }
-
-//loading
-function loadPlayer() {
-
-}
-
-function loadWorld() {
-    fs.readFile('./assets/world/world.json', "utf-8", (err, data) => {
-        if (err) {
-            console.log(err);
-            return;
-        }
-        world = new World(JSON.parse(data).regions);
-    })
-}
-
-function saveWorld() {
-    fs.writeFile('./assets/world/world.json', JSON.stringify(world), err => {
-        if (err) {
-            //error condition
-        }
-    });
-}
-
-function loadRegion(regionIndex) {
-    console.log(player.index);
-    //check if region json exists, if not build json
-    if (fs.existsSync(`./assets/world/region${player.index}.json`)) {
-        console.log('file exists');
-        fs.readFile(`./assets/world/region${regionIndex}.json`, "utf-8", (err, data) => {
-            if (err) {
-                console.log(err);
-                return;
-            }
-            currentRegion = data;
-        })
-    } else {
-        console.log('file doesnt exist make one');
-        currentRegion = new Region(world.regions[player.index]);
-    }
-    //set region to currentRegion
-}
-
-function saveRegion(regionIndex) {
-    fs.writeFile(`./assets/world/region${regionIndex}.json`, JSON.stringify(world), err => {
-        if (err) {
-            //error condition
-        }
-    });
-}
+ 
 
 //css hides and reveals
 function toggleMainMenu() {
@@ -468,9 +457,10 @@ function drawCanvas() {
         }
     }
     else { //regionMap
+        console.log(currentRegion)
         for (let i = 0; i < currentRegion.tiles.length; i++) {
             //region
-            ctx.fillStyle = 'black';
+            ctx.fillStyle = currentRegion.tiles[i].wall == 1 ? 'white' : 'black';
             ctx.fillRect(currentRegion.tiles[i].x * PIXEL_WIDTH, currentRegion.tiles[i].y * PIXEL_WIDTH, PIXEL_WIDTH, PIXEL_WIDTH);
 
             //player
