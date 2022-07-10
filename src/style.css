@@ -43,6 +43,8 @@ button {
     flex-direction: column;
     place-items: center;
     justify-content: space-around;
+    
+    background-image: url('./assets/images/ghazalFull.png');
 }
 
 /* GAME MENU */

@@ -1,4 +1,4 @@
-//#region [rgba(0,0,255,0.15)] IMPORTS, DOM, CONSTANTS, GLOBAL STATE, UTILITY
+//#region [rgba(0,0,255,0.15)] DEPENDENCIES
 const fs = require('fs');
 
 const SciFi = require('./classes/scifi');
@@ -41,12 +41,13 @@ let time = 0;
 let world = {};
 let currentRegion = {};
 let player = {};
+let actors = [];
 
 let mouseoverRegion = {};
 
 //#endregion
 
-//#region [rgba(255,0,125,0.15)] INPUTS
+//#region [rgba(255,0,125,0.15)] CONTROLLER
 
 cnv.addEventListener('click', (e) => {
     let pointerX = e.clientX - e.target.offsetLeft;
@@ -109,25 +110,37 @@ document.addEventListener('keydown', (e) => {
 
 //#endregion
 
-//#region [rgba(255,125,0,0.15)] MENUS
+//#region [rgba(255,125,0,0.15)] MODEL
+function worldActs() {
+    for (let i = 0; i < actors.length; i++) {
+        logger.addLog(actors[i].name);
+    }
+}
+
 function newGame() {
     world = new World();
-    player = new Player('Matthew', 0, 0, true);
+    player = new Player();
     toggleMainMenu()
     advanceTime();
     logger.addLog("Welcome to World")
 }
 
 function continueGame() {
-    fs.readFile('./assets/world/world.json', "utf-8", (err, data) => {
+    fs.readFile('./assets/world/world.json', "utf-8", (err, worldData) => {
         if (err) {
             console.log(err);
             return;
         }
-        world = new World(JSON.parse(data).regions);
-        player = new Player('Matthew', 0, 0, true);
-        toggleMainMenu()
-        advanceTime();
+        world = new World(JSON.parse(worldData).regions);
+        fs.readFile('./assets/player/player.json', "utf-8", (err, playerData) => {
+            if (err) {
+                console.log(err);
+                return;
+            }
+            player = new Player(JSON.parse(playerData));
+            toggleMainMenu()
+            advanceTime();
+        })
     })
     logger.addLog("Welcome to World")
 }
@@ -148,7 +161,7 @@ function descendToRegion() {
             worldMap = false;
             advanceTime();
         })
-    } 
+    }
     else {
         logger.addLog("file doesn't exist")
         currentRegion = new Region(world.regions[player.index], null)
@@ -166,12 +179,16 @@ function ascendToWorldMap() {
 }
 
 function quit() {
-    fs.writeFile('./assets/world/world.json', JSON.stringify(world), err => {
-        if (err) {
-            //error condition
-        }
-        nw.App.quit();
-    });
+    player.savePlayer();
+    world.saveWorld();
+    nw.App.quit();
+    // fs.writeFile('./assets/world/world.json', JSON.stringify(world), err => {
+    //     if (err) { }
+    //     fs.writeFile('./assets/player/playher.json', JSON.stringify(player), err => {
+    //         if (err) { }    
+    //         nw.App.quit();
+    //     });
+    // });
 }
 
 //css hides and reveals
@@ -216,7 +233,7 @@ function changePlayerMenuTo(newMenu) {
 
 //#endregion
 
-//#region [rgba(0,125,255,0.15)] RENDERING
+//#region [rgba(0,125,255,0.15)] VIEW
 function render() {
     drawMenus();
     drawCanvas();
@@ -267,13 +284,12 @@ function drawCanvas() {
             ctx.fillRect(player.x * PIXEL_WIDTH, player.y * PIXEL_WIDTH, PIXEL_WIDTH, PIXEL_WIDTH)
         }
     }
-
 }
 
 //#endregion
 
 function advanceTime(jumpTime = 1) {
-    //console.log('world acts')
+    worldActs();
     time += jumpTime;
     render();
 }

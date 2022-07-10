@@ -1,9 +1,1 @@
-{
-    "name": "Matthew",
-    "x": 0,
-    "y": 0,
-    "index": 0,
-    "alive": true,
-    "lastWorldPositionX": 0,
-    "lastWorldPositionY": 0
-}
+{"name":"Player","x":6,"y":3,"lastX":6,"lastY":2,"index":270,"alive":true,"stepsTaken":9,"lastWorldPositionX":0,"lastWorldPositionY":0}

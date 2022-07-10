@@ -1,15 +1,23 @@
 const fs = require('fs');
 const Actor = require('./actor');
+const Defaults = require('./defaults')
+const d = new Defaults();
 
 class Player extends Actor {
-    constructor(name, x, y, alive) {
-        super(name, x, y, alive);
-        this.lastWorldPositionX = x;
-        this.lastWorldPositionY = y;
+
+    //player unique stats
+    stepsTaken = 0;
+
+    constructor(playerJSON = d.PLAYER) {
+        super(playerJSON.name, playerJSON.x, playerJSON.y, playerJSON.alive);
+        this.lastWorldPositionX = this.x;
+        this.lastWorldPositionY = this.y;
         this.savePlayer();
     }
 
     move(dir) {
+        this.lastX = this.x;
+        this.lastY = this.y;
         switch (dir) {
             case 'up': this.y--; break;
             case 'right': this.x++; break;
@@ -17,6 +25,7 @@ class Player extends Actor {
             case 'left': this.x--; break;
         }
         this.index = this.x + (this.y * 88);
+        this.stepsTaken++;
     }
 
     moveToLastWorldPosition() {
