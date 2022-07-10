@@ -270,18 +270,19 @@ function drawCanvas() {
                 if (world.regions[i].elevation > 9) ctx.fillStyle = 'white';
                 ctx.fillRect(world.regions[i].x * PIXEL_WIDTH, world.regions[i].y * PIXEL_WIDTH, PIXEL_WIDTH, PIXEL_WIDTH);
             }
-
         }
     }
     else { //regionMap
         for (let i = 0; i < currentRegion.tiles.length; i++) {
-            //region
-            ctx.fillStyle = currentRegion.tiles[i].wall == 1 ? 'white' : 'lightgrey';
-            ctx.fillRect(currentRegion.tiles[i].x * PIXEL_WIDTH, currentRegion.tiles[i].y * PIXEL_WIDTH, PIXEL_WIDTH, PIXEL_WIDTH);
-
-            //player
-            ctx.fillStyle = 'red';
-            ctx.fillRect(player.x * PIXEL_WIDTH, player.y * PIXEL_WIDTH, PIXEL_WIDTH, PIXEL_WIDTH)
+            if (currentRegion.tiles[i].tileUrl) {
+                ctx.drawImage(imageManager.images.get(currentRegion.tiles[i].tileUrl), 
+                    currentRegion.tiles[i].x * PIXEL_WIDTH, 
+                    currentRegion.tiles[i].y * PIXEL_WIDTH)
+            }
+            else {
+                ctx.fillStyle = currentRegion.tiles[i].wall == 1 ? 'white' : 'lightgrey';
+                ctx.fillRect(currentRegion.tiles[i].x * PIXEL_WIDTH, currentRegion.tiles[i].y * PIXEL_WIDTH, PIXEL_WIDTH, PIXEL_WIDTH);
+            }
         }
     }
 }
