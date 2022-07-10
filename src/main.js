@@ -7,8 +7,10 @@ const Logger = require('./classes/logger');
 const Region = require('./classes/region');
 const World = require('./classes/world');
 const ImageManager = require('./classes/imageManager');
+const Defaults = require('./classes/defaults')
 
 //Util Classes
+const d = new Defaults();
 const sciFiUtility = new SciFi();
 const logger = new Logger(document.querySelector('#admin-log'))
 
@@ -116,14 +118,31 @@ document.addEventListener('keydown', (e) => {
 
 //#region [rgba(255,125,0,0.15)] MODEL
 function worldActs() {
-    for (let i = 0; i < actors.length; i++) {
-        logger.addLog(actors[i].name);
+    if (worldMap) {
+        logger.addLog("WM - Player moved into square with: " + world.regions[player.index].elevation + " elevation")
+        if (world.regions[player.index].elevation == 0) {
+            logger.addLog("Can't move into the ocean without a raft!")
+            player.moveBack();
+        }
+    }
+    else { //regionMap
+        logger.addLog("RM - Player moved into square with: " + currentRegion.tiles[player.index].wall + " wall")
+        if (currentRegion.tiles[player.index].wall) {
+            logger.addLog("BUMP!")
+            player.moveBack();
+        }
     }
 }
 
 function newGame() {
     world = new World();
-    player = new Player();
+
+    let xy = world.findAppropriateStartingLocationForPlayer();
+    let playerDefaults = d.PLAYER;
+    playerDefaults.x = xy[0];
+    playerDefaults.y = xy[1];
+
+    player = new Player(playerDefaults);
     toggleMainMenu()
     advanceTime();
     logger.addLog("Welcome to World")

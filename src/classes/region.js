@@ -15,6 +15,7 @@ class Region {
             this.temperature = regionPeek.temperature;
             this.overworldTileUrl = regionPeek.tileUrl
             this.initialNoise();
+            this.assignImages();
             this.saveRegion();
         }
         else if (regionFullData) {
@@ -36,8 +37,14 @@ class Region {
     initialNoise() {
         for (let y = 0; y < 64; y++) {
             for (let x = 0; x < 88; x++) {
-                this.tiles.push(new Tile(x, y, Math.random() > 0.42 ? 1 : 0, this.overworldTileUrl))
+                this.tiles.push(new Tile(x, y, Math.random() > 0.9 ? 1 : 0, this.overworldTileUrl))
             }
+        }
+    }
+
+    assignImages() {
+        for (let i = 0; i < this.tiles.length; i++) {
+            this.tiles[i].assignImage();            
         }
     }
 

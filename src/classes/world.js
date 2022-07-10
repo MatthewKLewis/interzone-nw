@@ -1,6 +1,5 @@
 const fs = require('fs');
 const RegionPeek = require('./regionPeek');
-const SciFi = require('./scifi')
 
 //
 // The world class reaches down into the RegionPeeks and alters their elevation and images.
@@ -87,6 +86,14 @@ class World {
     }
 
     //Utils:
+    findAppropriateStartingLocationForPlayer() {
+        for (let i = 2800; i < this.regions.length; i++) {
+            if (this.regions[i].elevation == 1) {
+                return [this.regions[i].x, this.regions[i].y]
+            }            
+        }
+    }
+
     getRegionAtMouse(x, y) {
         let tileX = Math.floor(x / 16)
         let tileY = Math.floor(y / 16)
