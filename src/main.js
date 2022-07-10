@@ -1,9 +1,9 @@
 //#region [rgba(0,0,255,0.15)] IMPORTS, CONSTANTS, GLOBAL STATE, UTILITY
 const fs = require('fs');
+const SciFi = require('./scifi');
 
 //Util Classes
-const SF = require('./scifi');
-const sciFiUtility = new SF();
+const sciFiUtility = new SciFi();
 
 const cnv = document.querySelector('#canvas');
 
@@ -43,7 +43,6 @@ let currentRegion = {};
 let player = {};
 
 let mouseoverRegion = {};
-let mouseoverTile = {};
 
 function convertXYToIndex(x, y) {
     return x + (y * 88);
@@ -53,7 +52,6 @@ function convertXYToIndex(x, y) {
 
 //#region [rgba(0,255,0,0.15)] ADMIN LOG
 
-let logItems = [];
 function addLog(text) {
     let el = document.createElement('p');
     el.innerText = text
@@ -265,7 +263,7 @@ class Player extends Actor {
             case 'left': this.x--; break;
         }
         this.index = convertXYToIndex(this.x, this.y);
-        advanceTime();
+        advanceTime(worldMap ? sciFiUtility.STEPS_PER_DAY : 1);
     }
 
     moveToLastWorldPosition() {
@@ -452,7 +450,7 @@ function render() {
 }
 
 function drawMenus() {
-    timer.innerText = 'Turns:' + time;
+    timer.innerText = sciFiUtility.convertStepsToTimeString(time);
 
     if (world) {
         underFootDisplay.innerText =
@@ -500,8 +498,8 @@ function drawCanvas() {
 }
 //#endregion
 
-function advanceTime() {
+function advanceTime(jumpTime = 1) {
     //console.log('world acts')
-    time++;
+    time += jumpTime;
     render();
 }
