@@ -1,5 +1,10 @@
 //#region [rgba(0,0,255,0.15)] IMPORTS, CONSTANTS, GLOBAL STATE, UTILITY
 const fs = require('fs');
+
+//Util Classes
+const SF = require('./scifi');
+const sciFiUtility = new SF();
+
 const cnv = document.querySelector('#canvas');
 
 const mainMenu = document.querySelector('#main-menu');
@@ -28,17 +33,7 @@ const log = document.querySelector('#admin-log');
 cnv.width = 1408;
 cnv.height = 1024;
 const ctx = cnv.getContext("2d");
-console.log(ctx);
 const PIXEL_WIDTH = 16;
-
-const VOWELS = "aeiouy".split('');
-const CONSONANTS = "bcdfghjklmnpqrstvwxz".split('');
-let SYLLABLES = []
-for (let i = 0; i < CONSONANTS.length; i++) {
-    for (let j = 0; j < VOWELS.length; j++) {
-        SYLLABLES.push(CONSONANTS[i] + VOWELS[j])
-    }
-}
 
 let paused = true;
 let worldMap = true; // as opposed to region map
@@ -54,13 +49,6 @@ function convertXYToIndex(x, y) {
     return x + (y * 88);
 }
 
-function generateSciFiName(syllables = 3) {
-    let retStr = ''
-    for (let i = 0; i < syllables; i++) {
-        retStr += SYLLABLES[Math.floor(Math.random() * SYLLABLES.length)]
-    }
-    return retStr
-}
 //#endregion
 
 //#region [rgba(0,255,0,0.15)] ADMIN LOG
@@ -84,10 +72,10 @@ class World {
     regions = [];
     constructor(regions = []) {
         if (regions.length > 0) {
-            console.log("loading existing world")
+            //console.log("loading existing world")
             this.regions = regions;
         } else {
-            console.log("creating new world")
+            //console.log("creating new world")
             this.initialNoise();
             this.smooth(3);
             this.zigguratize();
@@ -179,7 +167,7 @@ class World {
 
 class RegionPeek {
     constructor(x, y, elevation) {
-        this.name = generateSciFiName(3);
+        this.name = sciFiUtility.generateSciFiName(3);
         this.x = x;
         this.y = y;
         this.index = x + (y * 88)
@@ -193,8 +181,7 @@ class Region {
     tiles = [];
     constructor(regionPeek = {}, regionFullData = {}) {
         if (regionPeek) {
-            console.log('create a new full region from: ');
-
+            addLog('create a new full region from: ');
             this.name = regionPeek.name;
             this.x = regionPeek.x;
             this.y = regionPeek.y;
@@ -202,12 +189,11 @@ class Region {
             this.elevation = regionPeek.elevation;
             this.latitude = regionPeek.latitude;
             this.temperature = regionPeek.temperature;
-
             this.initialNoise();
             this.saveRegion();
         }
         else if (regionFullData) {
-            console.log('reconstitute region from file with tiles');
+            addLog('reconstitute region from file with tiles');
             this.name = regionFullData.name;
             this.x = regionFullData.x;
             this.y = regionFullData.y;
@@ -215,11 +201,10 @@ class Region {
             this.elevation = regionFullData.elevation;
             this.latitude = regionFullData.latitude;
             this.temperature = regionFullData.temperature;
-
             this.tiles = regionFullData.tiles
         }
         else {
-            console.log('error creating region')
+            addLog('error creating region')
         }
     }
 
@@ -231,18 +216,18 @@ class Region {
         }
     }
 
+    getTileAtMouse(x, y) {
+        let tileX = Math.floor(x / 16)
+        let tileY = Math.floor(y / 16)
+        return this.tiles[tileX + (tileY * 88)]
+    }
+
     saveRegion() {
         fs.writeFile(`./assets/world/region${this.index}.json`, JSON.stringify(this), err => {
             if (err) {
                 //error condition
             }
         });
-    }
-
-    getTileAtMouse(x, y) {
-        let tileX = Math.floor(x / 16)
-        let tileY = Math.floor(y / 16)
-        return this.tiles[tileX + (tileY * 88)]
     }
 }
 
@@ -268,6 +253,8 @@ class Player extends Actor {
     constructor(name, x, y, alive, playerName) {
         super(name, x, y, alive);
         this.playerName = playerName;
+        this.lastWorldPositionX = x;
+        this.lastWorldPositionY = y;
     }
 
     move(dir) {
@@ -278,7 +265,17 @@ class Player extends Actor {
             case 'left': this.x--; break;
         }
         this.index = convertXYToIndex(this.x, this.y);
-        gameLoop();
+        advanceTime();
+    }
+
+    moveToLastWorldPosition() {
+        this.x = this.lastWorldPositionX;
+        this.y = this.lastWorldPositionY;
+    }
+
+    saveWorldPosition() {
+        this.lastWorldPositionX = this.x;
+        this.lastWorldPositionY = this.y;
     }
 }
 //#endregion
@@ -293,25 +290,25 @@ cnv.addEventListener('click', (e) => {
     addLog(tileX + ":" + tileY);
 })
 
-// cnv.addEventListener('mousemove', (e) => {
-//     let pointerX = e.clientX - e.target.offsetLeft;
-//     let pointerY = e.clientY - e.target.offsetTop;
+cnv.addEventListener('mousemove', (e) => {
+    let pointerX = e.clientX - e.target.offsetLeft;
+    let pointerY = e.clientY - e.target.offsetTop;
 
-//     if (worldMap) {
-//         mouseoverRegion = world.getRegionAtMouse(pointerX, pointerY);
-//         lookDisplay.innerText =
-//             mouseoverRegion.name + '\n' +
-//             mouseoverRegion.elevation + '00 ft \n' +
-//             mouseoverRegion.temperature + '° Fahrenheit \n' +
-//             mouseoverRegion.latitude + `' Latitude \n`
+    if (worldMap) {
+        mouseoverRegion = world.getRegionAtMouse(pointerX, pointerY);
+        lookDisplay.innerText =
+            mouseoverRegion.name + '\n' +
+            mouseoverRegion.elevation + '00 ft \n' +
+            mouseoverRegion.temperature + '° Fahrenheit \n' +
+            mouseoverRegion.latitude + `' Latitude \n`
 
-//     } else {
-//         mouseoverTile = currentRegion.getTileAtMouse(pointerX, pointerY);
-//     }
-// })
+    } else {
+        mouseoverTile = currentRegion.getTileAtMouse(pointerX, pointerY);
+    }
+})
 
 document.addEventListener('keydown', (e) => {
-    console.log('player acts')
+    //console.log('player acts')
     switch (e.key) {
         case 'w':
             //addLog('move up')
@@ -330,7 +327,7 @@ document.addEventListener('keydown', (e) => {
             player.move('left');
             break;
         case 'q':
-            addLog('moving into or out of region')
+            worldMap ? descendToRegion() : ascendToWorldMap()
             break;
         case 'Escape':
             quit();
@@ -348,7 +345,7 @@ function newGame() {
     world = new World();
     player = new Player('Matthew', 0, 0, true);
     toggleMainMenu()
-    gameLoop();
+    advanceTime();
 }
 
 function continueGame() {
@@ -360,8 +357,41 @@ function continueGame() {
         world = new World(JSON.parse(data).regions);
         player = new Player('Matthew', 0, 0, true);
         toggleMainMenu()
-        gameLoop();
+        advanceTime();
     })
+}
+
+function descendToRegion() {
+    addLog("moving down to region at " + player.index)
+    player.saveWorldPosition();
+    player.x = 0;
+    player.y = 0;
+    if (fs.existsSync(`./assets/world/region${player.index}.json`)) {
+        addLog("file exists")
+        fs.readFile(`./assets/world/region${player.index}.json`, "utf-8", (err, data) => {
+            if (err) {
+                console.log(err);
+                return;
+            }
+            currentRegion = new Region(null, JSON.parse(data));
+            worldMap = false;
+            advanceTime();
+        })
+    } 
+    else {
+        addLog("file doesn't exist")
+        currentRegion = new Region(world.regions[player.index], null)
+        worldMap = false;
+        advanceTime();
+    }
+}
+
+function ascendToWorldMap() {
+    addLog("moving up to world map")
+    player.moveToLastWorldPosition();
+    currentRegion = {};
+    worldMap = true;
+    advanceTime();
 }
 
 function quit() {
@@ -372,15 +402,14 @@ function quit() {
         nw.App.quit();
     });
 }
- 
 
 //css hides and reveals
 function toggleMainMenu() {
     if (paused) {
-        console.log('showing mm');
+        //console.log('showing mm');
         mainMenu.classList.add('hide')
     } else {
-        console.log('hiding mm');
+        //console.log('hiding mm');
         mainMenu.classList.remove('hide')
     }
 }
@@ -457,10 +486,9 @@ function drawCanvas() {
         }
     }
     else { //regionMap
-        console.log(currentRegion)
         for (let i = 0; i < currentRegion.tiles.length; i++) {
             //region
-            ctx.fillStyle = currentRegion.tiles[i].wall == 1 ? 'white' : 'black';
+            ctx.fillStyle = currentRegion.tiles[i].wall == 1 ? 'white' : 'lightgrey';
             ctx.fillRect(currentRegion.tiles[i].x * PIXEL_WIDTH, currentRegion.tiles[i].y * PIXEL_WIDTH, PIXEL_WIDTH, PIXEL_WIDTH);
 
             //player
@@ -472,7 +500,7 @@ function drawCanvas() {
 }
 //#endregion
 
-function gameLoop() {
+function advanceTime() {
     //console.log('world acts')
     time++;
     render();

@@ -99,3 +99,4 @@ button {
 /* MICRO STYLES */
 .hide { display: none; }
 .yellow-bkg { background-color: yellow; }
+.boxed { border: 1px solid var(--dark); margin: 0.5em;}
