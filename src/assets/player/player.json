@@ -1,1 +1,9 @@
-{}
+{
+    "name": "Matthew",
+    "x": 0,
+    "y": 0,
+    "index": 0,
+    "alive": true,
+    "lastWorldPositionX": 0,
+    "lastWorldPositionY": 0
+}

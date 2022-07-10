@@ -1,3 +1,4 @@
+const fs = require('fs');
 const Actor = require('./actor');
 
 class Player extends Actor {
@@ -5,6 +6,7 @@ class Player extends Actor {
         super(name, x, y, alive);
         this.lastWorldPositionX = x;
         this.lastWorldPositionY = y;
+        this.savePlayer();
     }
 
     move(dir) {
@@ -25,6 +27,14 @@ class Player extends Actor {
     saveWorldPosition() {
         this.lastWorldPositionX = this.x;
         this.lastWorldPositionY = this.y;
+    }
+
+    savePlayer() {
+        fs.writeFile('./assets/player/player.json', JSON.stringify(this), err => {
+            if (err) {
+                //error condition
+            }
+        });
     }
 }
 
