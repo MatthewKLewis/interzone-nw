@@ -10,6 +10,8 @@ class RegionPeek {
         this.elevation = elevation;
         this.latitude = Math.abs(32 - y); //range from 1 to 32
         this.temperature = 99 - (this.latitude * 2.5) - (this.elevation * 10);
+
+        this.tileUrl = 'grass.png'
     }
 }
 

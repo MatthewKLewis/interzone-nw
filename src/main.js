@@ -6,10 +6,14 @@ const Player = require('./classes/player');
 const Logger = require('./classes/logger');
 const Region = require('./classes/region');
 const World = require('./classes/world');
+const ImageManager = require('./classes/imageManager');
 
 //Util Classes
 const sciFiUtility = new SciFi();
 const logger = new Logger(document.querySelector('#admin-log'))
+
+//Image management
+const imageManager = new ImageManager();
 
 const cnv = document.querySelector('#canvas');
 const mainMenu = document.querySelector('#main-menu');
@@ -182,13 +186,6 @@ function quit() {
     player.savePlayer();
     world.saveWorld();
     nw.App.quit();
-    // fs.writeFile('./assets/world/world.json', JSON.stringify(world), err => {
-    //     if (err) { }
-    //     fs.writeFile('./assets/player/playher.json', JSON.stringify(player), err => {
-    //         if (err) { }    
-    //         nw.App.quit();
-    //     });
-    // });
 }
 
 //css hides and reveals
@@ -237,6 +234,8 @@ function changePlayerMenuTo(newMenu) {
 function render() {
     drawMenus();
     drawCanvas();
+    drawActors();
+    drawPlayer();
 }
 
 function drawMenus() {
@@ -256,21 +255,22 @@ function drawCanvas() {
     if (worldMap) {
         for (let i = 0; i < world.regions.length; i++) {
             //world
-            ctx.fillStyle = "#" + world.regions[i].elevation + world.regions[i].elevation + world.regions[i].elevation;
-
-            switch (world.regions[i].elevation) {
-                case 0:
-                    ctx.fillStyle = 'darkblue';
-                    break;
+            if (world.regions[i].tileUrl) {
+                ctx.drawImage(imageManager.images.get(world.regions[i].tileUrl), 
+                    world.regions[i].x * PIXEL_WIDTH, 
+                    world.regions[i].y * PIXEL_WIDTH)
+            }
+            else {
+                ctx.fillStyle = "#" + world.regions[i].elevation + world.regions[i].elevation + world.regions[i].elevation;
+                switch (world.regions[i].elevation) {
+                    case 0:
+                        ctx.fillStyle = 'darkblue';
+                        break;
+                }
+                if (world.regions[i].elevation > 9) ctx.fillStyle = 'white';
+                ctx.fillRect(world.regions[i].x * PIXEL_WIDTH, world.regions[i].y * PIXEL_WIDTH, PIXEL_WIDTH, PIXEL_WIDTH);
             }
 
-            if (world.regions[i].elevation > 9) ctx.fillStyle = 'white';
-
-            ctx.fillRect(world.regions[i].x * PIXEL_WIDTH, world.regions[i].y * PIXEL_WIDTH, PIXEL_WIDTH, PIXEL_WIDTH);
-
-            //player
-            ctx.fillStyle = 'red';
-            ctx.fillRect(player.x * PIXEL_WIDTH, player.y * PIXEL_WIDTH, PIXEL_WIDTH, PIXEL_WIDTH)
         }
     }
     else { //regionMap
@@ -284,6 +284,16 @@ function drawCanvas() {
             ctx.fillRect(player.x * PIXEL_WIDTH, player.y * PIXEL_WIDTH, PIXEL_WIDTH, PIXEL_WIDTH)
         }
     }
+}
+
+function drawActors() {
+    //
+}
+
+function drawPlayer() {
+    //player
+    ctx.fillStyle = 'red';
+    ctx.fillRect(player.x * PIXEL_WIDTH, player.y * PIXEL_WIDTH, PIXEL_WIDTH, PIXEL_WIDTH)
 }
 
 //#endregion

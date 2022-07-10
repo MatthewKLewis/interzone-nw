@@ -24,7 +24,7 @@ class World {
                 this.regions.push(new RegionPeek(x, y, Math.random() > 0.42 ? 1 : 0))
             }
         }
-        console.log(this.regions);
+        //console.log(this.regions);
     }
 
     smooth(iterations = 1) {
@@ -91,7 +91,7 @@ class World {
     }
 
     saveWorld() {
-        fs.writeFile('./assets/world/world.json', JSON.stringify(this), err => {
+        fs.writeFileSync('./assets/world/world.json', JSON.stringify(this), err => {
             if (err) {
                 //error condition
             }

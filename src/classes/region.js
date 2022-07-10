@@ -47,7 +47,7 @@ class Region {
     }
 
     saveRegion() {
-        fs.writeFile(`./assets/world/region${this.index}.json`, JSON.stringify(this), err => {
+        fs.writeFileSync(`./assets/world/region${this.index}.json`, JSON.stringify(this), err => {
             if (err) {
                 //error condition
             }

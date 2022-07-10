@@ -39,7 +39,7 @@ class Player extends Actor {
     }
 
     savePlayer() {
-        fs.writeFile('./assets/player/player.json', JSON.stringify(this), err => {
+        fs.writeFileSync('./assets/player/player.json', JSON.stringify(this), err => {
             if (err) {
                 //error condition
             }
