@@ -17,10 +17,12 @@ const characterMenu = document.querySelector('#character');
 //proximity
 const timer = document.querySelector('#timer');
 const lookDisplay = document.querySelector('#look');
+const underFootDisplay = document.querySelector('#under-foot');
 
 //character
 const playerNameDisplay = document.querySelector('#player-name');
 
+//log
 const log = document.querySelector('#admin-log');
 
 cnv.width = 1408;
@@ -47,6 +49,10 @@ let player = {};
 
 let mouseoverRegion = {};
 let mouseoverTile = {};
+
+function convertXYToIndex(x, y) {
+    return x + (y * 88);
+}
 
 function generateSciFiName(syllables = 3) {
     let retStr = ''
@@ -92,7 +98,7 @@ class World {
     initialNoise() {
         for (let y = 0; y < (cnv.height / PIXEL_WIDTH); y++) {
             for (let x = 0; x < (cnv.width / PIXEL_WIDTH); x++) {
-                this.regions.push(new Region(x, y, Math.random() > 0.42 ? 1 : 0))
+                this.regions.push(new RegionPeek(x, y, Math.random() > 0.42 ? 1 : 0))
             }
         }
     }
@@ -145,7 +151,6 @@ class World {
     }
 
     //Utils:
-
     getRegionAtMouse(x, y) {
         let tileX = Math.floor(x / 16)
         let tileY = Math.floor(y / 16)
@@ -163,8 +168,7 @@ class World {
 
 }
 
-class Region {
-    tiles = [];
+class RegionPeek {
     constructor(x, y, elevation) {
         this.name = generateSciFiName(3);
         this.x = x;
@@ -173,6 +177,22 @@ class Region {
         this.elevation = elevation;
         this.latitude = Math.abs(32 - y); //range from 1 to 32
         this.temperature = 99 - (this.latitude * 2.5) - (this.elevation * 10);
+    }
+}
+
+class Region {
+    tiles = [];
+    constructor(regionPeek = {}, regionFullData = {}) {
+        if (regionPeek) {
+            console.log('make a full region from: ');
+            console.log(regionPeek);
+        }
+        else if (regionFullData) {
+            console.log('reconstitute region from file ');
+        }
+        else {
+            console.log('error creating region')
+        }
     }
 
     getTileAtMouse(x, y) {
@@ -195,6 +215,7 @@ class Actor {
         this.name = name;
         this.x = x;
         this.y = y;
+        this.index = convertXYToIndex(x, y);
         this.alive = alive;
     }
 }
@@ -204,6 +225,22 @@ class Player extends Actor {
         super(name, x, y, alive);
         this.playerName = playerName;
     }
+
+    move(dir) {
+        switch (dir) {
+            case 'up': this.y--; break;
+            case 'right': this.x++; break;
+            case 'down': this.y++; break;
+            case 'left': this.x--; break;
+        }
+        this.index = convertXYToIndex(this.x, this.y);
+        gameLoop();
+    }
+
+    descendToRegion() {
+        loadRegion(this.index);
+        gameLoop();
+    }
 }
 //#endregion
 
@@ -212,52 +249,50 @@ class Player extends Actor {
 cnv.addEventListener('click', (e) => {
     let pointerX = e.clientX - e.target.offsetLeft;
     let pointerY = e.clientY - e.target.offsetTop;
-
     let tileX = Math.floor(pointerX / 16)
     let tileY = Math.floor(pointerY / 16)
     addLog(tileX + ":" + tileY);
 })
 
-cnv.addEventListener('mousemove', (e) => {
-    let pointerX = e.clientX - e.target.offsetLeft;
-    let pointerY = e.clientY - e.target.offsetTop;
+// cnv.addEventListener('mousemove', (e) => {
+//     let pointerX = e.clientX - e.target.offsetLeft;
+//     let pointerY = e.clientY - e.target.offsetTop;
 
-    if (worldMap) {
-        mouseoverRegion = world.getRegionAtMouse(pointerX, pointerY);
-        lookDisplay.innerText =
-            mouseoverRegion.name + '\n' +
-            mouseoverRegion.elevation + '00 ft \n' +
-            mouseoverRegion.temperature + '° Fahrenheit \n' +
-            mouseoverRegion.latitude + `' Latitude \n`
+//     if (worldMap) {
+//         mouseoverRegion = world.getRegionAtMouse(pointerX, pointerY);
+//         lookDisplay.innerText =
+//             mouseoverRegion.name + '\n' +
+//             mouseoverRegion.elevation + '00 ft \n' +
+//             mouseoverRegion.temperature + '° Fahrenheit \n' +
+//             mouseoverRegion.latitude + `' Latitude \n`
 
-    } else {
-        mouseoverTile = currentRegion.getTileAtMouse(pointerX, pointerY);
-    }
-
-    let tileX = Math.floor(pointerX / 16)
-    let tileY = Math.floor(pointerY / 16)
-    addLog("mouse:" + tileX + ":" + tileY);
-
-})
+//     } else {
+//         mouseoverTile = currentRegion.getTileAtMouse(pointerX, pointerY);
+//     }
+// })
 
 document.addEventListener('keydown', (e) => {
     console.log('player acts')
     switch (e.key) {
         case 'w':
-            addLog('move up')
-            player.y--;
-            break;
-        case 'a':
-            addLog('move left')
-            player.x--;
-            break;
-        case 's':
-            addLog('move down')
-            player.y++;
+            //addLog('move up')
+            player.move('up');
             break;
         case 'd':
-            addLog('move right')
-            player.x++;
+            //addLog('move right')
+            player.move('right');
+            break;
+        case 's':
+            //addLog('move down')
+            player.move('down');
+            break;
+        case 'a':
+            //addLog('move left')
+            player.move('left');
+            break;
+        case 'q':
+            addLog('moving into region')
+            player.descendToRegion()
             break;
         case 'Escape':
             quit();
@@ -265,8 +300,8 @@ document.addEventListener('keydown', (e) => {
         default:
             break;
     }
-    gameLoop();
 })
+
 
 //#endregion
 
@@ -279,7 +314,7 @@ function newGame() {
 }
 
 function continueGame() {
-    fs.readFile('./assets/world.json', "utf-8", (err, data) => {
+    fs.readFile('./assets/world/world.json', "utf-8", (err, data) => {
         if (err) {
             console.log(err);
             return;
@@ -292,12 +327,65 @@ function continueGame() {
 }
 
 function quit() {
-    fs.writeFile('./assets/world.json', JSON.stringify(world), err => {
-        if (err) { nw.App.quit(); }
+    fs.writeFile('./assets/world/world.json', JSON.stringify(world), err => {
+        if (err) {
+            //error condition
+        }
         nw.App.quit();
     });
 }
 
+//loading
+function loadPlayer() {
+
+}
+
+function loadWorld() {
+    fs.readFile('./assets/world/world.json', "utf-8", (err, data) => {
+        if (err) {
+            console.log(err);
+            return;
+        }
+        world = new World(JSON.parse(data).regions);
+    })
+}
+
+function saveWorld() {
+    fs.writeFile('./assets/world/world.json', JSON.stringify(world), err => {
+        if (err) {
+            //error condition
+        }
+    });
+}
+
+function loadRegion(regionIndex) {
+    console.log(player.index);
+    //check if region json exists, if not build json
+    if (fs.existsSync(`./assets/world/region${player.index}.json`)) {
+        console.log('file exists');
+        fs.readFile(`./assets/world/region${regionIndex}.json`, "utf-8", (err, data) => {
+            if (err) {
+                console.log(err);
+                return;
+            }
+            currentRegion = data;
+        })
+    } else {
+        console.log('file doesnt exist make one');
+        currentRegion = new Region(world.regions[player.index]);
+    }
+    //set region to currentRegion
+}
+
+function saveRegion(regionIndex) {
+    fs.writeFile(`./assets/world/region${regionIndex}.json`, JSON.stringify(world), err => {
+        if (err) {
+            //error condition
+        }
+    });
+}
+
+//css hides and reveals
 function toggleMainMenu() {
     if (paused) {
         console.log('showing mm');
@@ -346,31 +434,56 @@ function render() {
 }
 
 function drawMenus() {
-    timer.innerText = time;
+    timer.innerText = 'Turns:' + time;
+
+    if (world) {
+        underFootDisplay.innerText =
+            world.regions[player.index].name + '(' + player.index + ')' + '\n' +
+            world.regions[player.index].elevation + '00 ft \n' +
+            world.regions[player.index].temperature + '° Fahrenheit \n' +
+            world.regions[player.index].latitude + `' Latitude \n`
+    }
+
 }
 
 function drawCanvas() {
-    for (let i = 0; i < world.regions.length; i++) {
-        //world
-        ctx.fillStyle = "#" + world.regions[i].elevation + world.regions[i].elevation + world.regions[i].elevation;
+    if (worldMap) {
+        for (let i = 0; i < world.regions.length; i++) {
+            //world
+            ctx.fillStyle = "#" + world.regions[i].elevation + world.regions[i].elevation + world.regions[i].elevation;
 
-        switch (world.regions[i].elevation) {
-            case 0:
-                ctx.fillStyle = 'darkblue';
-                break;
+            switch (world.regions[i].elevation) {
+                case 0:
+                    ctx.fillStyle = 'darkblue';
+                    break;
+            }
+
+            if (world.regions[i].elevation > 9) ctx.fillStyle = 'white';
+
+            ctx.fillRect(world.regions[i].x * PIXEL_WIDTH, world.regions[i].y * PIXEL_WIDTH, PIXEL_WIDTH, PIXEL_WIDTH);
+
+            //player
+            ctx.fillStyle = 'red';
+            ctx.fillRect(player.x * PIXEL_WIDTH, player.y * PIXEL_WIDTH, PIXEL_WIDTH, PIXEL_WIDTH)
         }
-
-        ctx.fillRect(world.regions[i].x * PIXEL_WIDTH, world.regions[i].y * PIXEL_WIDTH, PIXEL_WIDTH, PIXEL_WIDTH);
-
-        //player
-        ctx.fillStyle = 'red';
-        ctx.fillRect(player.x * PIXEL_WIDTH, player.y * PIXEL_WIDTH, PIXEL_WIDTH, PIXEL_WIDTH)
     }
+    else { //regionMap
+        for (let i = 0; i < currentRegion.tiles.length; i++) {
+            //region
+            ctx.fillStyle = 'black';
+            ctx.fillRect(currentRegion.tiles[i].x * PIXEL_WIDTH, currentRegion.tiles[i].y * PIXEL_WIDTH, PIXEL_WIDTH, PIXEL_WIDTH);
+
+            //player
+            ctx.fillStyle = 'red';
+            ctx.fillRect(player.x * PIXEL_WIDTH, player.y * PIXEL_WIDTH, PIXEL_WIDTH, PIXEL_WIDTH)
+        }
+    }
+
 }
 //#endregion
 
 function gameLoop() {
-    console.log('world acts')
+    //console.log('world acts')
     time++;
     render();
 }

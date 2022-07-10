@@ -4,6 +4,7 @@
     "main": "index.html",
     "window": {
         "title": "World",
+        "icon": "./assets/image/ghazal16.png",
         "toolbar": false,
         "width": 1920,
         "height": 1080,
