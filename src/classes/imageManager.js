@@ -10,7 +10,6 @@ class ImageManager {
             tempImg.src = `./assets/tiles/${file}`
             this.images.set(file, tempImg);
         })
-        console.log(this.images);
     }
 }
 

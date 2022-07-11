@@ -1,25 +1,34 @@
 :root {
-    --dark: #222;
+    --dark: #212121;
+    --darker: #111;
     --light: #e0e0e0;
 }
 
 * {
     margin: 0;
+    color: #fff;
     font-family: monospace;
     overflow: hidden;
+    background-color: var(--dark);
+}
+
+hr {
+    border: none;
+    height: 1px;
+    background-color: 1px solid var(--dark);
 }
 
 nav {
     width: 1920;
     height: 32px;
-    background-color: var(--dark);
+    background-color: var(--darker);
     display: flex;
     flex-direction: row;
 }
 
 footer {
     grid-column: 1 / 3;
-    background-color: var(--dark);
+    background-color: var(--darker);
     height: 30px;
 }
 
@@ -28,8 +37,8 @@ button {
     width: 128px;
     height: 32px;
     border: none;
-    background-color: white;
-} button:hover {background-color: var(--light);}
+    background-color: var(--dark);
+} button:hover {background-color: var(--darker);}
 
 /* MAIN MENU */
 
@@ -38,13 +47,11 @@ button {
     width: 100%;
     height: 100%;
     z-index: 999;
-    background-color: var(--light);
+    background-color: var(--dark);
     display: flex;
     flex-direction: column;
     place-items: center;
     justify-content: space-around;
-    
-    background-image: url('./assets/images/ghazalFull.png');
 }
 
 /* GAME MENU */
@@ -92,13 +99,13 @@ button {
 }
 
 .admin-log {
-    background-color: yellow;
     padding: 1em;
     height: 174px;
+    border-left: 1px solid var(--light);
+    border-right: 1px solid var(--light);
     overflow-y: hidden;
 }
 
 /* MICRO STYLES */
 .hide { display: none; }
-.yellow-bkg { background-color: yellow; }
-.boxed { border: 1px solid var(--dark); margin: 0.5em;}
+.boxed { border: 1px solid var(--dark); margin: 0.5em; padding: 0.5em;}

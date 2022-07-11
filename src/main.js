@@ -13,8 +13,6 @@ const Defaults = require('./classes/defaults')
 const d = new Defaults();
 const sciFiUtility = new SciFi();
 const logger = new Logger(document.querySelector('#admin-log'))
-
-//Image management
 const imageManager = new ImageManager();
 
 const cnv = document.querySelector('#canvas');
@@ -35,6 +33,8 @@ const underFootDisplay = document.querySelector('#under-foot');
 
 //character
 const playerNameDisplay = document.querySelector('#player-name');
+const healthbarDisplay = document.querySelector('#healthbar');
+const experienceDisplay = document.querySelector('#experience');
 
 cnv.width = 1408;
 cnv.height = 1024;
@@ -47,6 +47,7 @@ let time = 0;
 let world = {};
 let currentRegion = {};
 let player = {};
+
 let actors = [];
 
 let mouseoverRegion = {};
@@ -119,14 +120,14 @@ document.addEventListener('keydown', (e) => {
 //#region [rgba(255,125,0,0.15)] MODEL
 function worldActs() {
     if (worldMap) {
-        logger.addLog("WM - Player moved into square with: " + world.regions[player.index].elevation + " elevation")
+        //logger.addLog("WM - Player moved into square with: " + world.regions[player.index].elevation + " elevation")
         if (world.regions[player.index].elevation == 0) {
             logger.addLog("Can't move into the ocean without a raft!")
             player.moveBack();
         }
     }
     else { //regionMap
-        logger.addLog("RM - Player moved into square with: " + currentRegion.tiles[player.index].wall + " wall")
+        //logger.addLog("RM - Player moved into square with: " + currentRegion.tiles[player.index].wall + " wall")
         if (currentRegion.tiles[player.index].wall) {
             logger.addLog("BUMP!")
             player.moveBack();
@@ -138,11 +139,11 @@ function newGame() {
     world = new World();
 
     let xy = world.findAppropriateStartingLocationForPlayer();
-    let playerDefaults = d.PLAYER;
-    playerDefaults.x = xy[0];
-    playerDefaults.y = xy[1];
+    let startingPlayerDefaults = d.PLAYER;
+    startingPlayerDefaults.x = xy[0];
+    startingPlayerDefaults.y = xy[1];
 
-    player = new Player(playerDefaults);
+    player = new Player(startingPlayerDefaults);
     toggleMainMenu()
     advanceTime();
     logger.addLog("Welcome to World")
@@ -252,13 +253,18 @@ function changePlayerMenuTo(newMenu) {
 //#region [rgba(0,125,255,0.15)] VIEW
 function render() {
     drawMenus();
-    drawCanvas();
+    drawWorldOrRegion();
     drawActors();
     drawPlayer();
 }
 
 function drawMenus() {
     timer.innerText = sciFiUtility.convertStepsToTimeString(time);
+    playerNameDisplay.innerText = player.name;
+    healthbarDisplay.value = player.health;
+    healthbarDisplay.max = player.maxHealth;
+    experienceDisplay.value = player.experience;
+    experienceDisplay.max = 100;
 
     if (world) {
         underFootDisplay.innerText =
@@ -270,7 +276,7 @@ function drawMenus() {
 
 }
 
-function drawCanvas() {
+function drawWorldOrRegion() {
     if (worldMap) {
         for (let i = 0; i < world.regions.length; i++) {
             //world
@@ -312,8 +318,7 @@ function drawActors() {
 
 function drawPlayer() {
     //player
-    ctx.fillStyle = 'red';
-    ctx.fillRect(player.x * PIXEL_WIDTH, player.y * PIXEL_WIDTH, PIXEL_WIDTH, PIXEL_WIDTH)
+    ctx.drawImage(imageManager.images.get('player.png'), player.x * PIXEL_WIDTH, player.y * PIXEL_WIDTH)
 }
 
 //#endregion

@@ -4,7 +4,9 @@ class Defaults {
         "x": 0,
         "y": 0,
         "index": 0,
-        "alive": true
+        "alive": true,
+        "maxHealth": 20,
+        "experience": 0,
     }
 }
 

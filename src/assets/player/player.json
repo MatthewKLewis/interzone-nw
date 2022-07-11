@@ -1,1 +1,1 @@
-{"name":"Player","x":22,"y":1,"lastX":22,"lastY":1,"index":110,"alive":true,"stepsTaken":90,"lastWorldPositionX":77,"lastWorldPositionY":31}
+{"name":"Player","x":75,"y":31,"lastX":75,"lastY":31,"index":2803,"alive":true,"maxHealth":20,"health":20,"lastWorldPositionX":75,"lastWorldPositionY":31,"experience":0}

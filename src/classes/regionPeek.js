@@ -16,8 +16,15 @@ class RegionPeek {
 
     assignImage() {
         if (this.temperature < 32) {
-            if (this.elevation == 0) {
-                this.tileUrl = 'ice.png'
+            switch (this.elevation) {
+                case 0:
+                    this.tileUrl = 'ice.png'
+                    break;            
+                case 1:
+                    this.tileUrl = 'snow.png'
+                    break;
+                default:
+                    break;
             }
         }
         else if (this.temperature >= 32 && this.temperature < 85) {

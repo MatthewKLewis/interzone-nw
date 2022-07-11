@@ -10,14 +10,16 @@ class World {
     regions = [];
     constructor(regions = []) {
         if (regions.length > 0) {
-            //console.log("loading existing world")
             this.regions = regions;
         } else {
-            //console.log("creating new world")
             this.initialNoise();
-            this.smooth(3);
+
+            this.smooth();
             this.zigguratize();
             this.addElevationNoise();
+
+            //add cities, villages, industrial and agricultural areas?
+
             this.assignImages();
             this.saveWorld();
         }
@@ -32,7 +34,7 @@ class World {
         //console.log(this.regions);
     }
 
-    smooth(iterations = 1) {
+    smooth(iterations = 3) {
         for (let i = 0; i < iterations; i++) {
             for (let i = 0; i < this.regions.length; i++) {
                 const neighboringRegions = this.getNeighboringRegions(i);

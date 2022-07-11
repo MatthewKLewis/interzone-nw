@@ -3,13 +3,11 @@ const Actor = require('./actor');
 
 class Player extends Actor {
 
-    //player unique stats
-    stepsTaken = 0;
-
     constructor(playerJSON) {
-        super(playerJSON.name, playerJSON.x, playerJSON.y, playerJSON.alive);
+        super(playerJSON.name, playerJSON.x, playerJSON.y, playerJSON.alive, playerJSON.maxHealth);
         this.lastWorldPositionX = this.x;
         this.lastWorldPositionY = this.y;
+        this.experience = playerJSON.experience
         this.savePlayer();
     }
 

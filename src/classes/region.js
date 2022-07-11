@@ -1,11 +1,14 @@
 const fs = require('fs');
 const Tile = require('./tile');
 
+//
+// The region class reaches down into the tiles and alters their character and images.
+//
+
 class Region {
     tiles = [];
     constructor(regionPeek = {}, regionFullData = {}) {
         if (regionPeek) {
-            //addLog('create a new full region from: ');
             this.name = regionPeek.name;
             this.x = regionPeek.x;
             this.y = regionPeek.y;
@@ -15,6 +18,9 @@ class Region {
             this.temperature = regionPeek.temperature;
             this.overworldTileUrl = regionPeek.tileUrl
             this.initialNoise();
+
+            //do something here. take on a characterization. tell the tiles to do something.
+
             this.assignImages();
             this.saveRegion();
         }

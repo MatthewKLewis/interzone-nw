@@ -4,14 +4,17 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>World</title>
+    <title>haploid</title>
     <link rel="stylesheet" href="./style.css">
 </head>
 <body>
     <div class="main-menu" id="main-menu">
-        <h1>World</h1>
-        <button onclick="newGame()">New Game</button>
-        <button onclick="continueGame()">Load Game</button>
+        <h1>haploid</h1>
+        <img src="./assets/images/ghazalFull.png">
+        <div class="buttons">
+            <button onclick="newGame()">new game</button>
+            <button onclick="continueGame()">load game</button>
+        </div>
     </div>
     <nav>
         <button onclick="quit()">Quit</button>
@@ -47,25 +50,34 @@
 
                     <p id="look"        class="boxed"></p>
                     <p id="under-foot"  class="boxed"></p>
+
+                    <button onclick="changeRenderStyleTo('elevation')">show elevation</button>
+                    <button onclick="changeRenderStyleTo('population')">show population</button>
+
                 </div>
 
                 <div id="inventory" class="sub-interface hide">
-                    
-
+                    <p>inventory:</p>
                 </div>
 
                 <div id="journal" class="sub-interface hide">
-                    
-
+                    <p>journal:</p>
                 </div>
 
                 <div id="character" class="sub-interface hide">
-                    <p id="timer">Time</p>
-                    <p id="player-name">Player Name</p>
+                    <p id="player-name">name</p>
+                    
+                    <label>health</label>
+                    <progress id="healthbar"></progress>
+                    <br>
+                    <label>Experience</label>
+                    <progress id="experience"></progress>
+
                 </div>
 
             </div>
             <div class="admin-log" id="admin-log">
+                <hr>
                 <!--Admin logs will fill here-->
             </div>
         </div>
