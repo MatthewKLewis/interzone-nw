@@ -43,7 +43,7 @@ class Region {
     initialNoise() {
         for (let y = 0; y < 64; y++) {
             for (let x = 0; x < 88; x++) {
-                this.tiles.push(new Tile(x, y, Math.random() > 0.9 ? 1 : 0, this.overworldTileUrl))
+                this.tiles.push(new Tile(x, y, Math.random() > 0.99 ? 1 : 0, this.overworldTileUrl))
             }
         }
     }

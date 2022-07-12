@@ -4,6 +4,7 @@ const fs = require('fs');
 const SciFi = require('./classes/scifi');
 const Player = require('./classes/player');
 const Logger = require('./classes/logger');
+const Modaler = require('./classes/modal');
 const Region = require('./classes/region');
 const World = require('./classes/world');
 const ImageManager = require('./classes/imageManager');
@@ -13,6 +14,7 @@ const Defaults = require('./classes/defaults')
 const d = new Defaults();
 const sciFiUtility = new SciFi();
 const logger = new Logger(document.querySelector('#admin-log'))
+const modaler = new Modaler(document.querySelector('#modal'))
 const imageManager = new ImageManager();
 
 const cnv = document.querySelector('#canvas');
@@ -83,36 +85,77 @@ cnv.addEventListener('mousemove', (e) => {
 
 document.addEventListener('keydown', (e) => {
     //console.log('player acts')
-    switch (e.key) {
-        case 'w':
-            //logger.addLog('move up')
-            player.move('up');
-            advanceTime(worldMap ? sciFiUtility.STEPS_PER_DAY : 1);
-            break;
-        case 'd':
-            //logger.addLog('move right')
-            player.move('right');
-            advanceTime(worldMap ? sciFiUtility.STEPS_PER_DAY : 1);
-            break;
-        case 's':
-            //logger.addLog('move down')
-            player.move('down');
-            advanceTime(worldMap ? sciFiUtility.STEPS_PER_DAY : 1);
-            break;
-        case 'a':
-            //logger.addLog('move left')
-            player.move('left');
-            advanceTime(worldMap ? sciFiUtility.STEPS_PER_DAY : 1);
-            break;
-        case 'q':
-            worldMap ? descendToRegion() : ascendToWorldMap()
-            break;
-        case 'Escape':
-            quit();
-            break;
-        default:
-            break;
+    if (worldMap) {
+        switch (e.key) {
+            case 'w':
+                //logger.addLog('move up')
+                player.moveWorld('up');
+                advanceTime(sciFiUtility.STEPS_PER_DAY);
+                break;
+            case 'd':
+                //logger.addLog('move right')
+                player.moveWorld('right');
+                advanceTime(sciFiUtility.STEPS_PER_DAY);
+                break;
+            case 's':
+                //logger.addLog('move down')
+                player.moveWorld('down');
+                advanceTime(sciFiUtility.STEPS_PER_DAY);
+                break;
+            case 'a':
+                //logger.addLog('move left')
+                player.moveWorld('left');
+                advanceTime(sciFiUtility.STEPS_PER_DAY);
+                break;
+            case 'q':
+                descendToRegion();
+                break;
+            case 'm':
+                modaler.toggleVisibility()
+                break;
+            case 'Escape':
+                quit();
+                break;
+            default:
+                break;
+        }
     }
+    else { //regionMap
+        switch (e.key) {
+            case 'w':
+                //logger.addLog('move up')
+                player.moveRegion('up');
+                advanceTime(1);
+                break;
+            case 'd':
+                //logger.addLog('move right')
+                player.moveRegion('right');
+                advanceTime(1);
+                break;
+            case 's':
+                //logger.addLog('move down')
+                player.moveRegion('down');
+                advanceTime(1);
+                break;
+            case 'a':
+                //logger.addLog('move left')
+                player.moveRegion('left');
+                advanceTime(1);
+                break;
+            case 'q':
+                ascendToWorldMap();
+                break;
+            case 'm':
+                modaler.toggleVisibility()
+                break;
+            case 'Escape':
+                quit();
+                break;
+            default:
+                break;
+        }
+    }
+
 })
 
 //#endregion
@@ -120,17 +163,17 @@ document.addEventListener('keydown', (e) => {
 //#region [rgba(255,125,0,0.15)] MODEL
 function worldActs() {
     if (worldMap) {
-        //logger.addLog("WM - Player moved into square with: " + world.regions[player.index].elevation + " elevation")
-        if (world.regions[player.index].elevation == 0) {
+        //logger.addLog("WM - Player moved into square with: " + world.regions[player.worldIndex].elevation + " elevation")
+        if (world.regions[player.worldIndex].elevation == 0) {
             logger.addLog("Can't move into the ocean without a raft!")
-            player.moveBack();
+            player.moveBack(true);
         }
     }
     else { //regionMap
-        //logger.addLog("RM - Player moved into square with: " + currentRegion.tiles[player.index].wall + " wall")
-        if (currentRegion.tiles[player.index].wall) {
+        //logger.addLog("RM - Player moved into square with: " + currentRegion.tiles[player.regionIndex].wall + " wall")
+        if (currentRegion.tiles[player.regionIndex].wall) {
             logger.addLog("BUMP!")
-            player.moveBack();
+            player.moveBack(false);
         }
     }
 }
@@ -140,8 +183,8 @@ function newGame() {
 
     let xy = world.findAppropriateStartingLocationForPlayer();
     let startingPlayerDefaults = d.PLAYER;
-    startingPlayerDefaults.x = xy[0];
-    startingPlayerDefaults.y = xy[1];
+    startingPlayerDefaults.X = xy[0];
+    startingPlayerDefaults.Y = xy[1];
 
     player = new Player(startingPlayerDefaults);
     toggleMainMenu()
@@ -170,13 +213,12 @@ function continueGame() {
 }
 
 function descendToRegion() {
-    logger.addLog("moving down to region at " + player.index)
-    player.saveWorldPosition();
+    logger.addLog("moving down to region at " + player.worldIndex)
     player.x = 0;
     player.y = 0;
-    if (fs.existsSync(`./assets/world/region${player.index}.json`)) {
+    if (fs.existsSync(`./assets/world/region${player.worldIndex}.json`)) {
         logger.addLog("file exists")
-        fs.readFile(`./assets/world/region${player.index}.json`, "utf-8", (err, data) => {
+        fs.readFile(`./assets/world/region${player.worldIndex}.json`, "utf-8", (err, data) => {
             if (err) {
                 console.log(err);
                 return;
@@ -188,7 +230,7 @@ function descendToRegion() {
     }
     else {
         logger.addLog("file doesn't exist")
-        currentRegion = new Region(world.regions[player.index], null)
+        currentRegion = new Region(world.regions[player.worldIndex], null)
         worldMap = false;
         advanceTime();
     }
@@ -196,7 +238,6 @@ function descendToRegion() {
 
 function ascendToWorldMap() {
     logger.addLog("moving up to world map")
-    player.moveToLastWorldPosition();
     currentRegion = {};
     worldMap = true;
     advanceTime();
@@ -268,10 +309,10 @@ function drawMenus() {
 
     if (world) {
         underFootDisplay.innerText =
-            world.regions[player.index].name + '(' + player.index + ')' + '\n' +
-            world.regions[player.index].elevation + '00 ft \n' +
-            world.regions[player.index].temperature + '° Fahrenheit \n' +
-            world.regions[player.index].latitude + `' Latitude \n`
+            world.regions[player.worldIndex].name + '(' + player.worldIndex + ')' + '\n' +
+            world.regions[player.worldIndex].elevation + '00 ft \n' +
+            world.regions[player.worldIndex].temperature + '° Fahrenheit \n' +
+            world.regions[player.worldIndex].latitude + `' Latitude \n`
     }
 
 }
@@ -318,7 +359,12 @@ function drawActors() {
 
 function drawPlayer() {
     //player
-    ctx.drawImage(imageManager.images.get('player.png'), player.x * PIXEL_WIDTH, player.y * PIXEL_WIDTH)
+    if (worldMap) {
+        ctx.drawImage(imageManager.images.get('player.png'), player.X * PIXEL_WIDTH, player.Y * PIXEL_WIDTH)
+    }
+    else { //regionMap
+        ctx.drawImage(imageManager.images.get('player.png'), player.x * PIXEL_WIDTH, player.y * PIXEL_WIDTH)
+    }
 }
 
 //#endregion

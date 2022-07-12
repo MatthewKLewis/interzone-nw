@@ -1,11 +1,20 @@
 class Actor {
-    constructor(name, x, y, alive, maxHealth) {
+    constructor(name, x, y, X, Y, alive, maxHealth) {
         this.name = name;
+
         this.x = x;
         this.y = y;
-        this.lastX = x;
-        this.lastY = y;
-        this.index = this.x + (this.y * 88);
+        this.lastx = x;
+        this.lasty = y;
+
+        this.X = X;
+        this.Y = Y;
+        this.lastX = X;
+        this.lasyY = Y;
+
+        this.worldIndex = this.X + (this.Y * 88);
+        this.regionIndex = this.x + (this.y * 88);
+
         this.alive = alive;
         this.maxHealth = maxHealth;
         this.health = maxHealth;

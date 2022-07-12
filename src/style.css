@@ -2,6 +2,7 @@
     --dark: #212121;
     --darker: #111;
     --light: #e0e0e0;
+    --modal: rgba(100, 100, 100, .85);
 }
 
 * {
@@ -104,6 +105,21 @@ button {
     border-left: 1px solid var(--light);
     border-right: 1px solid var(--light);
     overflow-y: hidden;
+}
+
+.modal {
+    position: fixed;
+    top: 128px;
+    left: 320px;
+    width: 764px;
+    height: 764px;
+
+    margin: 0 auto;
+    padding: 10px;
+
+    border-radius: 10px;
+    background-color: rgba(100, 100, 100, .9);
+    z-index: 998;
 }
 
 /* MICRO STYLES */
