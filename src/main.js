@@ -8,6 +8,7 @@ const Modaler = require('./classes/modal');
 const Region = require('./classes/region');
 const World = require('./classes/world');
 const ImageManager = require('./classes/imageManager');
+const ColorManager = require('./classes/colorManager');
 const Defaults = require('./classes/defaults')
 
 //Util Classes
@@ -16,6 +17,7 @@ const sciFiUtility = new SciFi();
 const logger = new Logger(document.querySelector('#admin-log'))
 const modaler = new Modaler(document.querySelector('#modal'))
 const imageManager = new ImageManager();
+const colorManager = new ColorManager();
 
 const cnv = document.querySelector('#canvas');
 const mainMenu = document.querySelector('#main-menu');
@@ -61,14 +63,6 @@ let mouseoverRegion = {};
 cnv.addEventListener('click', (e) => {
     let pointerX = e.clientX - e.target.offsetLeft;
     let pointerY = e.clientY - e.target.offsetTop;
-    let tileX = Math.floor(pointerX / 16)
-    let tileY = Math.floor(pointerY / 16)
-    logger.addLog(tileX + ":" + tileY);
-})
-
-cnv.addEventListener('mousemove', (e) => {
-    let pointerX = e.clientX - e.target.offsetLeft;
-    let pointerY = e.clientY - e.target.offsetTop;
 
     if (worldMap) {
         mouseoverRegion = world.getRegionAtMouse(pointerX, pointerY);
@@ -77,10 +71,22 @@ cnv.addEventListener('mousemove', (e) => {
             mouseoverRegion.elevation + '00 ft \n' +
             mouseoverRegion.temperature + '° Fahrenheit \n' +
             mouseoverRegion.latitude + `' Latitude \n`
-
-    } else {
-        mouseoverTile = currentRegion.getTileAtMouse(pointerX, pointerY);
     }
+    render();
+})
+
+cnv.addEventListener('mousemove', (e) => {
+    // let pointerX = e.clientX - e.target.offsetLeft;
+    // let pointerY = e.clientY - e.target.offsetTop;
+
+    // if (worldMap) {
+    //     mouseoverRegion = world.getRegionAtMouse(pointerX, pointerY);
+    //     lookDisplay.innerText =
+    //         mouseoverRegion.name + '\n' +
+    //         mouseoverRegion.elevation + '00 ft \n' +
+    //         mouseoverRegion.temperature + '° Fahrenheit \n' +
+    //         mouseoverRegion.latitude + `' Latitude \n`
+    // }
 })
 
 document.addEventListener('keydown', (e) => {
@@ -296,7 +302,12 @@ function render() {
     drawMenus();
     drawWorldOrRegion();
     drawActors();
+    mouseoverRegion && drawSelectedTile()
     drawPlayer();
+}
+
+function drawSelectedTile() {
+    ctx.drawImage(imageManager.images.get('highlight.png'), mouseoverRegion.x * PIXEL_WIDTH, mouseoverRegion.y * PIXEL_WIDTH)
 }
 
 function drawMenus() {
@@ -309,7 +320,7 @@ function drawMenus() {
 
     if (world) {
         underFootDisplay.innerText =
-            world.regions[player.worldIndex].name + '(' + player.worldIndex + ')' + '\n' +
+            world.regions[player.worldIndex].name + '\n' +
             world.regions[player.worldIndex].elevation + '00 ft \n' +
             world.regions[player.worldIndex].temperature + '° Fahrenheit \n' +
             world.regions[player.worldIndex].latitude + `' Latitude \n`
@@ -320,34 +331,23 @@ function drawMenus() {
 function drawWorldOrRegion() {
     if (worldMap) {
         for (let i = 0; i < world.regions.length; i++) {
-            //world
+            ctx.fillStyle = colorManager.getColorForWorldTile(world.regions[i]);
+            ctx.fillRect(world.regions[i].x * PIXEL_WIDTH, world.regions[i].y * PIXEL_WIDTH, PIXEL_WIDTH, PIXEL_WIDTH);
             if (world.regions[i].tileUrl) {
                 ctx.drawImage(imageManager.images.get(world.regions[i].tileUrl), 
                     world.regions[i].x * PIXEL_WIDTH, 
                     world.regions[i].y * PIXEL_WIDTH)
-            }
-            else {
-                ctx.fillStyle = "#" + world.regions[i].elevation + world.regions[i].elevation + world.regions[i].elevation;
-                switch (world.regions[i].elevation) {
-                    case 0:
-                        ctx.fillStyle = 'darkblue';
-                        break;
-                }
-                if (world.regions[i].elevation > 9) ctx.fillStyle = 'white';
-                ctx.fillRect(world.regions[i].x * PIXEL_WIDTH, world.regions[i].y * PIXEL_WIDTH, PIXEL_WIDTH, PIXEL_WIDTH);
-            }
+            }            
         }
     }
-    else { //regionMap
+    else {//regionMap
         for (let i = 0; i < currentRegion.tiles.length; i++) {
+            ctx.fillStyle = colorManager.getColorForRegionTile(currentRegion.tiles[i]);
+            ctx.fillRect(currentRegion.tiles[i].x * PIXEL_WIDTH, currentRegion.tiles[i].y * PIXEL_WIDTH, PIXEL_WIDTH, PIXEL_WIDTH);
             if (currentRegion.tiles[i].tileUrl) {
                 ctx.drawImage(imageManager.images.get(currentRegion.tiles[i].tileUrl), 
                     currentRegion.tiles[i].x * PIXEL_WIDTH, 
                     currentRegion.tiles[i].y * PIXEL_WIDTH)
-            }
-            else {
-                ctx.fillStyle = currentRegion.tiles[i].wall == 1 ? 'white' : 'lightgrey';
-                ctx.fillRect(currentRegion.tiles[i].x * PIXEL_WIDTH, currentRegion.tiles[i].y * PIXEL_WIDTH, PIXEL_WIDTH, PIXEL_WIDTH);
             }
         }
     }
@@ -362,7 +362,7 @@ function drawPlayer() {
     if (worldMap) {
         ctx.drawImage(imageManager.images.get('player.png'), player.X * PIXEL_WIDTH, player.Y * PIXEL_WIDTH)
     }
-    else { //regionMap
+    else {//regionMap
         ctx.drawImage(imageManager.images.get('player.png'), player.x * PIXEL_WIDTH, player.y * PIXEL_WIDTH)
     }
 }
