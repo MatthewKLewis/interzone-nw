@@ -18,7 +18,7 @@ const World = require('./classes/world');
 const d = new Defaults();
 const sciFiUtility = new SciFi();
 const logger = new Logger(document.querySelector('#admin-log'))
-const modaler = new Modaler(document.querySelector('#modal'))
+const modaler = new Modaler(document.querySelector('#modal'), document.querySelector('#modal-content'))
 const imageManager = new ImageManager();
 const colorManager = new ColorManager();
 
@@ -56,6 +56,7 @@ let currentRegion = {};
 let player = {};
 
 let actors = [];
+let objectsAtPlayerPosition = []
 
 let mouseoverRegion = {};
 
@@ -119,9 +120,6 @@ document.addEventListener('keydown', (e) => {
             case 'q':
                 descendToRegion();
                 break;
-            case 'm':
-                modaler.toggleVisibility()
-                break;
             case 'Escape':
                 quit();
                 break;
@@ -167,6 +165,27 @@ document.addEventListener('keydown', (e) => {
 
 })
 
+function openModal(panelName) {
+    switch (panelName) {
+        case 'pickup':
+            modaler.open(panelName, objectsAtPlayerPosition, ()=>{
+                logger.addLog("closed inventory");
+            })
+            break;    
+        case 'dialog':
+            modaler.open('dialog', {}, ()=>{
+                logger.addLog("closed inventory");
+            })
+            break;    
+        default:
+            break;
+    }
+}
+
+function closeModal() {
+    modaler.close();
+}
+
 //#endregion
 
 //#region [rgba(255,125,0,0.15)] MODEL
@@ -187,7 +206,7 @@ function worldActs() {
         }
 
         //GAMEOBJECTS
-        let objectsAtPlayerPosition = currentRegion.items.filter(item => item.regionIndex == player.regionIndex);
+        objectsAtPlayerPosition = currentRegion.items.filter(item => item.regionIndex == player.regionIndex);
         if (objectsAtPlayerPosition.length > 0) {
             logger.addLog("You notice something under your foot..." + objectsAtPlayerPosition[0].name + '!')
             console.log(objectsAtPlayerPosition)
@@ -200,10 +219,6 @@ function worldActs() {
 
 function newGame() {
     world = new World();
-
-    for (let i = 0; i < 20; i++) {
-        logger.addLog( i + " years have passed");    
-    }
 
     let xy = world.findAppropriateStartingLocationForPlayer();
     let startingPlayerDefaults = d.PLAYER;
@@ -238,8 +253,7 @@ function continueGame() {
 
 function descendToRegion() {
     logger.addLog("moving down to region at " + player.worldIndex)
-    player.x = 0;
-    player.y = 0;
+
     if (fs.existsSync(`./assets/world/region${player.worldIndex}.json`)) {
         logger.addLog("file exists")
         fs.readFile(`./assets/world/region${player.worldIndex}.json`, "utf-8", (err, data) => {
@@ -248,6 +262,8 @@ function descendToRegion() {
                 return;
             }
             currentRegion = new Region(null, JSON.parse(data));
+            player.x = currentRegion.entryPoint[0];
+            player.y = currentRegion.entryPoint[1];
             worldMap = false;
             advanceTime();
         })
@@ -255,6 +271,8 @@ function descendToRegion() {
     else {
         logger.addLog("file doesn't exist")
         currentRegion = new Region(world.regions[player.worldIndex], null)
+        player.x = currentRegion.entryPoint[0];
+        player.y = currentRegion.entryPoint[1];
         worldMap = false;
         advanceTime();
     }
@@ -277,9 +295,11 @@ function quit() {
 function toggleMainMenu() {
     if (paused) {
         //console.log('showing mm');
+        paused = false;
         mainMenu.classList.add('hide')
     } else {
         //console.log('hiding mm');
+        paused = true;
         mainMenu.classList.remove('hide')
     }
 }

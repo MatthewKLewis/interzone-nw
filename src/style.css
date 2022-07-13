@@ -125,6 +125,14 @@ button {
     z-index: 998;
 }
 
+.loading {
+    position: fixed;
+    top: 128px;
+    left: 320px;
+    width: 764px;
+    text-align: center;
+}
+
 /* MICRO STYLES */
 .hide { display: none; }
 .boxed { margin: 0.5em; padding: 0.5em;}

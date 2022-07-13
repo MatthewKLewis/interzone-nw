@@ -8,17 +8,20 @@ const RegionPeek = require('./regionPeek');
 
 class World {
     regions = [];
+    kingdoms = [];
     constructor(regions = []) {
         if (regions.length > 0) {
             this.regions = regions;
         } else {
             this.initialNoise();
 
+            //geology
             this.smooth();
             this.zigguratize();
             this.addElevationNoise();
 
             //add cities, villages, industrial and agricultural areas?
+            this.addKingdoms()
 
             this.assignImages();
             this.saveWorld();
@@ -77,6 +80,27 @@ class World {
         for (let i = 0; i < this.regions.length; i++) {
             if (this.regions[i].elevation != 0 && this.regions[i].elevation != 9) {
                 Math.random() > 0.8 ? this.regions[i].elevation++ : null
+            }
+        }
+    }
+
+    addKingdoms() {
+        for (let i = 400; i < 2000; i++) {
+            if (this.regions[i].elevation > 0) {
+                this.regions[i].settlement = true;
+                break;
+            }
+        }
+        for (let j = 2000; j < 4000; j++) {
+            if (this.regions[j].elevation > 0) {
+                this.regions[j].settlement = true;
+                break;
+            }          
+        }
+        for (let k = 4000; k < this.regions.length; k++) {
+            if (this.regions[k].elevation > 0) {
+                this.regions[k].settlement = true;
+                break;
             }
         }
     }

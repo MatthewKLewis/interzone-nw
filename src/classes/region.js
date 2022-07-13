@@ -1,6 +1,6 @@
 const fs = require('fs');
 const Tile = require('./tile');
-const GameObject = require('./objects/gameObject')
+const Weapon = require('./objects/weapon')
 
 //
 // The region class reaches down into the tiles and alters their character and images.
@@ -11,7 +11,7 @@ class Region {
     items = [];
     actors = [];
     constructor(regionPeek = {}, regionFullData = {}) {
-        if (regionPeek) {
+        if (regionPeek) { //create a brand new region
             this.name = regionPeek.name;
             this.x = regionPeek.x;
             this.y = regionPeek.y;
@@ -25,20 +25,23 @@ class Region {
             //do something here. take on a characterization. tell the tiles to do something.
             this.placePowerups();
 
+            //finally determine the entry point
+            this.entryPoint = this.determineEntryPoint();
+
             this.assignImages();
             this.saveRegion();
         }
-        else if (regionFullData) {
-            //addLog('reconstitute region from file with tiles');
-            this.name = regionFullData.name;
-            this.x = regionFullData.x;
-            this.y = regionFullData.y;
-            this.index = regionFullData.index;
-            this.elevation = regionFullData.elevation;
-            this.latitude = regionFullData.latitude;
-            this.temperature = regionFullData.temperature;
+        else if (regionFullData) { //recreate the region from file
+            this.name = regionFullData.name
+            this.x = regionFullData.x
+            this.y = regionFullData.y
+            this.index = regionFullData.index
+            this.elevation = regionFullData.elevation
+            this.latitude = regionFullData.latitude
+            this.temperature = regionFullData.temperature
             this.tiles = regionFullData.tiles
             this.items = regionFullData.items
+            this.entryPoint = regionFullData.entryPoint
         }
         else {
             //addLog('error creating region')
@@ -53,10 +56,18 @@ class Region {
         }
     }
 
+    determineEntryPoint() {
+        for (let i = 2000; i < this.tiles.length; i++) {
+            if (!this.tiles[i].wall) {
+                return [this.tiles[i].x, this.tiles[i].y]
+            }            
+        }
+    }
+
     placePowerups() {
         for (let y = 0; y < 64; y++) {
             for (let x = 0; x < 88; x++) {
-                Math.random() > 0.99 && this.items.push(new GameObject(x, y, 'Trash', 'Increate'));
+                Math.random() > 0.99 && this.items.push(new Weapon(x, y, 'Dagger', 'Increate'));
             }
         }
     }

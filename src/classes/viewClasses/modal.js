@@ -2,19 +2,11 @@ class Modaler {
 
     visible;
 
-    constructor(htmlElement) {
+    constructor(htmlElement, contentElement) {
         this.visible = false;
+        this.contentElement = contentElement;
         this.htmlElement = htmlElement;
         this.htmlElement.classList.add('hide');
-    }
-
-    addLog(text) {
-        let el = document.createElement('p');
-        el.innerText = text
-        if (this.htmlElement.childNodes.length > 10) {
-            this.htmlElement.removeChild(this.htmlElement.firstChild);
-        }
-        this.htmlElement.appendChild(el);
     }
 
     show() {
@@ -25,13 +17,36 @@ class Modaler {
         this.htmlElement.classList.add('hide')
     }
 
-    toggleVisibility() {
-        if (this.visible) {
-            this.htmlElement.classList.add('hide');
-        } else {
+    open(panelName, data) {
+        if (!this.visible) {
             this.htmlElement.classList.remove('hide');
+            switch (panelName) {
+                case 'pickup':
+                    this.fillPickupContent(data);            
+                    break;        
+                case 'dialog':
+                    console.log('dialog');            
+                    break;        
+                default:
+                    break;
+            }
+            this.visible = true;
         }
-        this.visible = !this.visible;
+    }
+
+    fillPickupContent(data) {
+        for (let i = 0; i < data.length; i++) {
+            let el = document.createElement('p')
+            el.innerText = "Pick Up" + data[i].name
+            this.contentElement.appendChild(el)
+        }
+    }
+
+    close() {
+        while (this.contentElement.firstChild) {
+            this.contentElement.removeChild(this.contentElement.firstChild);
+        }
+        this.htmlElement.classList.add('hide');
     }
 }
 

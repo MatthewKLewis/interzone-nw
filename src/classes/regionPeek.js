@@ -13,9 +13,14 @@ class RegionPeek {
 
         this.tileUrl = 'grass.png'
         this.discovered = false;
+        this.settlement = false;
     }
 
     assignImage() {
+        if (this.settlement) {
+            this.tileUrl = 'settlement.png'
+            return;
+        }
         if (this.temperature < 32) {
             switch (this.elevation) {
                 case 0:
