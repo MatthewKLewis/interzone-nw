@@ -14,6 +14,9 @@ const Modaler = require('./classes/viewClasses/modal');
 const Region = require('./classes/region');
 const World = require('./classes/world');
 
+var audio = new Audio('./assets/sounds/music/xelpun3.mp3');
+audio.play();
+
 //Util Classes
 const d = new Defaults();
 const sciFiUtility = new SciFi();
@@ -192,7 +195,7 @@ function closeModal() {
 function worldActs() {
     if (worldMap) {
         //logger.addLog("WM - Player moved into square with: " + world.regions[player.worldIndex].elevation + " elevation")
-        if (world.regions[player.worldIndex].elevation == 0) {
+        if (world.regions[player.worldIndex].elevation == 0 && world.regions[player.worldIndex].temperature > 32) {
             logger.addLog("Can't move into the ocean without a raft!")
             player.moveBack(true);
         }

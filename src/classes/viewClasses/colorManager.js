@@ -10,9 +10,9 @@ class ColorManager {
         let alpChan = 1;
 
         if (region.elevation == 0 && region.temperature > 32) {
-            redChan = 7;
-            greChan = 30;
-            bluChan = 40;
+            redChan = 3;
+            greChan = 15;
+            bluChan = 20;
         } else {
             redChan = this.decimalTo255(region.elevation);
             greChan = this.decimalTo255(region.elevation);

@@ -1,6 +1,7 @@
 :root {
     --dark: #212121;
-    --darker: #111;
+    --darker: #151515;
+    --darkest: #111;
     --light: #e0e0e0;
 
     --modal: rgba(100, 100, 100, 0.85);
@@ -41,8 +42,12 @@ button {
     width: 128px;
     height: 32px;
     border: none;
-    background-color: var(--dark);
-} button:hover {background-color: var(--darker);}
+    background-color: var(--darker);
+} button:hover {background-color: var(--darkest);}
+
+progress {
+    width: 100%;
+}
 
 /* MAIN MENU */
 
@@ -86,6 +91,12 @@ button {
     border-right: 1px solid var(--light);
 }
 
+#character {
+    display: grid;
+    grid-template-columns: 50% 50%;
+    grid-template-rows: repeat(12, 2em);
+}
+
 .tab-row {
     display: flex;
     flex-direction: row;
@@ -94,6 +105,7 @@ button {
 .tab {
     width: 64;
     height: 32;
+    background-color: var(--dark);
     border-bottom: 1px solid var(--light);
 }
 
@@ -135,6 +147,6 @@ button {
 
 /* MICRO STYLES */
 .hide { display: none; }
-.boxed { margin: 0.5em; padding: 0.5em;}
+.boxed { margin-top: 0.5em; margin-bottom: 0.5em; padding: 0.5em;}
 #look {border: 1px solid rgb(255, 205, 0);}
 #under-foot {border: 1px solid red;}
