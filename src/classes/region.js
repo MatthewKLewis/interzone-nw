@@ -1,5 +1,6 @@
 const fs = require('fs');
 const Tile = require('./tile');
+const GameObject = require('./objects/gameObject')
 
 //
 // The region class reaches down into the tiles and alters their character and images.
@@ -7,6 +8,8 @@ const Tile = require('./tile');
 
 class Region {
     tiles = [];
+    items = [];
+    actors = [];
     constructor(regionPeek = {}, regionFullData = {}) {
         if (regionPeek) {
             this.name = regionPeek.name;
@@ -20,6 +23,7 @@ class Region {
             this.initialNoise();
 
             //do something here. take on a characterization. tell the tiles to do something.
+            this.placePowerups();
 
             this.assignImages();
             this.saveRegion();
@@ -44,6 +48,14 @@ class Region {
         for (let y = 0; y < 64; y++) {
             for (let x = 0; x < 88; x++) {
                 this.tiles.push(new Tile(x, y, Math.random() > 0.99 ? 1 : 0, this.overworldTileUrl))
+            }
+        }
+    }
+
+    placePowerups() {
+        for (let y = 0; y < 64; y++) {
+            for (let x = 0; x < 88; x++) {
+                Math.random() > 0.99 && this.items.push(new GameObject(x, y, 'Trash', 'Increate'));
             }
         }
     }

@@ -3,11 +3,6 @@ class ColorManager {
     constructor() { }
 
     getColorForWorldTile(region) {
-
-        if (region.index == 1) {
-            console.log(region)
-        }
-
         let redChan = 0;
         let greChan = 0;
         let bluChan = 0;
@@ -25,10 +20,20 @@ class ColorManager {
     }
 
     getColorForRegionTile(tile) {
-        if (tile.index == 1) {
-            console.log(tile)
+        let redChan = 0;
+        let greChan = 0;
+        let bluChan = 0;
+        let alpChan = 1;
+
+        if (tile.wall == 0) {
+            return 'rgba(14, 72, 77, 1)';
         }
-        return 'blue';
+
+        redChan = this.decimalTo255(1);
+        greChan = this.decimalTo255(1);
+        bluChan = this.decimalTo255(1);
+
+        return `rgba(${redChan}, ${greChan}, ${bluChan}, ${alpChan})`;
     }
 
     //1,2,3,4, 5, 6, 7, 8, 9,10,

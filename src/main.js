@@ -2,14 +2,17 @@
 const fs = require('fs');
 
 const SciFi = require('./classes/scifi');
-const Player = require('./classes/player');
-const Logger = require('./classes/logger');
-const Modaler = require('./classes/modal');
+const Defaults = require('./classes/defaults')
+
+const Player = require('./classes/actors/player');
+
+const Logger = require('./classes/viewClasses/logger');
+const ColorManager = require('./classes/viewClasses/colorManager');
+const ImageManager = require('./classes/viewClasses/imageManager');
+const Modaler = require('./classes/viewClasses/modal');
+
 const Region = require('./classes/region');
 const World = require('./classes/world');
-const ImageManager = require('./classes/imageManager');
-const ColorManager = require('./classes/colorManager');
-const Defaults = require('./classes/defaults')
 
 //Util Classes
 const d = new Defaults();
@@ -176,11 +179,21 @@ function worldActs() {
         }
     }
     else { //regionMap
-        //logger.addLog("RM - Player moved into square with: " + currentRegion.tiles[player.regionIndex].wall + " wall")
+        //COLLISION
         if (currentRegion.tiles[player.regionIndex].wall) {
             logger.addLog("BUMP!")
             player.moveBack(false);
         }
+
+        //GAMEOBJECTS
+        let objectsAtPlayerPosition = currentRegion.items.filter(item => item.regionIndex == player.regionIndex);
+        if (objectsAtPlayerPosition.length > 0) {
+            logger.addLog("You notice something under your foot..." + objectsAtPlayerPosition[0].name + '!')
+            console.log(objectsAtPlayerPosition)
+        }
+
+        //Enemy Movement and Attacks
+        //Player Movement and Attacks
     }
 }
 
@@ -301,7 +314,8 @@ function changePlayerMenuTo(newMenu) {
 function render() {
     drawMenus();
     drawWorldOrRegion();
-    drawActors();
+    !worldMap && drawItems();
+    !worldMap && drawActors();
     mouseoverRegion && drawSelectedTile()
     drawPlayer();
 }
@@ -350,6 +364,16 @@ function drawWorldOrRegion() {
                     currentRegion.tiles[i].y * PIXEL_WIDTH)
             }
         }
+    }
+}
+
+function drawItems() {
+    for (let i = 0; i < currentRegion.items.length; i++) {
+        if (currentRegion.items[i].tileUrl) {
+            ctx.drawImage(imageManager.images.get(currentRegion.items[i].tileUrl), 
+                currentRegion.items[i].x * PIXEL_WIDTH, 
+                currentRegion.items[i].y * PIXEL_WIDTH)
+        }    
     }
 }
 
