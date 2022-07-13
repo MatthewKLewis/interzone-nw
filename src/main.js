@@ -177,6 +177,7 @@ function worldActs() {
             logger.addLog("Can't move into the ocean without a raft!")
             player.moveBack(true);
         }
+        world.discoverRegionAt(player.worldIndex);
     }
     else { //regionMap
         //COLLISION
@@ -200,6 +201,10 @@ function worldActs() {
 function newGame() {
     world = new World();
 
+    for (let i = 0; i < 20; i++) {
+        logger.addLog( i + " years have passed");    
+    }
+
     let xy = world.findAppropriateStartingLocationForPlayer();
     let startingPlayerDefaults = d.PLAYER;
     startingPlayerDefaults.X = xy[0];
@@ -208,7 +213,7 @@ function newGame() {
     player = new Player(startingPlayerDefaults);
     toggleMainMenu()
     advanceTime();
-    logger.addLog("Welcome to World")
+    logger.addLog("You enter the world.")
 }
 
 function continueGame() {

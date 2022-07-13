@@ -18,6 +18,12 @@ class Player extends Actor {
             case 'down': this.Y++; break;
             case 'left': this.X--; break;
         }
+
+        if (this.Y > 63){ this.Y = 0; }
+        if (this.X > 87){ this.X = 0; }
+        if (this.Y < 0){ this.Y = 63; }
+        if (this.X < 0){ this.X = 87; }
+
         this.worldIndex = this.X + (this.Y * 88);
     }
 

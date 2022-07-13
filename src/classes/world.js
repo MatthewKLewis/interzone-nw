@@ -119,6 +119,11 @@ class World {
         });
     }
 
+    //Interaction
+    discoverRegionAt(indexOfRegion) {
+        this.regions[indexOfRegion].discovered = true;
+    }
+
 }
 
 module.exports = World;

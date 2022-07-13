@@ -12,6 +12,7 @@ class RegionPeek {
         this.temperature = 99 - (this.latitude * 2.5) - (this.elevation * 10);
 
         this.tileUrl = 'grass.png'
+        this.discovered = false;
     }
 
     assignImage() {

@@ -38,6 +38,7 @@ class Region {
             this.latitude = regionFullData.latitude;
             this.temperature = regionFullData.temperature;
             this.tiles = regionFullData.tiles
+            this.items = regionFullData.items
         }
         else {
             //addLog('error creating region')

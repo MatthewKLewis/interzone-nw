@@ -8,13 +8,15 @@ class ColorManager {
         let bluChan = 0;
         let alpChan = 1;
 
-        if (region.elevation == 0) {
-            return 'rgba(14, 72, 77, 1)';
+        if (region.discovered) {
+            if (region.elevation == 0) {
+                return 'rgba(14, 72, 77, 1)';
+            }
+    
+            redChan = this.decimalTo255(region.elevation);
+            greChan = this.decimalTo255(region.elevation);
+            bluChan = this.decimalTo255(region.elevation);
         }
-
-        redChan = this.decimalTo255(region.elevation);
-        greChan = this.decimalTo255(region.elevation);
-        bluChan = this.decimalTo255(region.elevation);
 
         return `rgba(${redChan}, ${greChan}, ${bluChan}, ${alpChan})`;
     }
