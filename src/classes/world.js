@@ -91,36 +91,42 @@ class World {
         for (let k = 400; k < this.regions.length; k++) {
             if (this.regions[k].elevation > 0) {
                 this.regions[k].settlement = 1;
+                this.regions[k].settlementName = 'wun';
                 break;
             }
         }
         for (let k = 1000; k < this.regions.length; k++) {
             if (this.regions[k].elevation > 0) {
                 this.regions[k].settlement = 1;
+                this.regions[k].settlementName = 'tou';
                 break;
             }
         }
         for (let k = 2000; k < this.regions.length; k++) {
             if (this.regions[k].elevation > 0) {
                 this.regions[k].settlement = 1;
+                this.regions[k].settlementName = 'tre';
                 break;
             }
         }
         for (let k = 3000; k < this.regions.length; k++) {
             if (this.regions[k].elevation > 0) {
                 this.regions[k].settlement = 1;
+                this.regions[k].settlementName = 'for';
                 break;
             }
         }
         for (let k = 4000; k < this.regions.length; k++) {
             if (this.regions[k].elevation > 0) {
                 this.regions[k].settlement = 1;
+                this.regions[k].settlementName = 'fyv';
                 break;
             }
         }
         for (let k = 5000; k < this.regions.length; k++) {
             if (this.regions[k].elevation > 0) {
                 this.regions[k].settlement = 1;
+                this.regions[k].settlementName = 'six';
                 break;
             }
         }
@@ -132,9 +138,10 @@ class World {
             matchingSettlements.forEach((reg) => {
                 reg.settlement = reg.settlement + 1;
                 let neighbors = this.getNeighboringRegions(reg.index);
-                neighbors = neighbors.map((reg) => { 
-                    if (reg && reg.elevation > 0 && reg.settlement < iterations && Math.random() > 0.3) { 
-                        reg.settlement = reg.settlement + 1 
+                neighbors = neighbors.map((nei) => { 
+                    if (nei && nei.elevation > 0 && nei.settlement < iterations && Math.random() > 0.3) { 
+                        nei.settlement = nei.settlement + 1 
+                        nei.settlementName = reg.settlementName;
                     } 
                 })
             })

@@ -78,7 +78,7 @@ cnv.addEventListener('click', (e) => {
             mouseoverRegion.name + '\n' +
             mouseoverRegion.elevation + '00 ft \n' +
             mouseoverRegion.temperature + '° Fahrenheit \n' +
-            mouseoverRegion.settlement + ' Settlement Level \n' +
+            mouseoverRegion.settlement + ' Settlement Level ' + (mouseoverRegion.settlementName ? mouseoverRegion.settlementName : '') + '\n'
             mouseoverRegion.latitude + `' Latitude \n`
     }
     render();
