@@ -30,6 +30,7 @@ class ColorManager {
         //latitude
         bluChan = Math.floor(redChan + region.latitude)
 
+        // //=> fog of war
         // if (!region.discovered) {    
         //     redChan = Math.floor(redChan / 5);
         //     greChan = Math.floor(greChan / 5);

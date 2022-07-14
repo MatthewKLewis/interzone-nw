@@ -20,7 +20,7 @@ class World {
             this.zigguratize();
             this.addElevationNoise();
 
-            //add cities, villages, industrial and agricultural areas?
+            //add settlements
             this.addKingdoms();
             this.expandKingdoms();
             this.contractKingdoms();
@@ -151,7 +151,7 @@ class World {
     contractKingdoms() {
         let allSettledRegions = this.regions.filter((reg) => reg.settlement > 0)
         for (let i = 0; i < allSettledRegions.length; i++) {
-            Math.random() > 0.6 ? allSettledRegions[i].settlement--: null;            
+            Math.random() > 0.6 ? allSettledRegions[i].settlement-- : null;            
         }
     }
 
