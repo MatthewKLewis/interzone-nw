@@ -37,6 +37,10 @@ footer {
     height: 30px;
 }
 
+marquee {
+    background-color: var(--darker);
+}
+
 button {
     margin: 0;
     width: 128px;

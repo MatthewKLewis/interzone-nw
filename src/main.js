@@ -9,13 +9,11 @@ const Player = require('./classes/actors/player');
 const Logger = require('./classes/viewClasses/logger');
 const ColorManager = require('./classes/viewClasses/colorManager');
 const ImageManager = require('./classes/viewClasses/imageManager');
+const SoundManager = require('./classes/viewClasses/soundManager');
 const Modaler = require('./classes/viewClasses/modal');
 
 const Region = require('./classes/region');
 const World = require('./classes/world');
-
-var audio = new Audio('./assets/sounds/music/xelpun3.mp3');
-audio.play();
 
 //Util Classes
 const d = new Defaults();
@@ -23,7 +21,10 @@ const sciFiUtility = new SciFi();
 const logger = new Logger(document.querySelector('#admin-log'))
 const modaler = new Modaler(document.querySelector('#modal'), document.querySelector('#modal-content'))
 const imageManager = new ImageManager();
+const soundManager = new SoundManager();
 const colorManager = new ColorManager();
+
+//soundManager.music.get('xelpun3.mp3').play();
 
 const cnv = document.querySelector('#canvas');
 const mainMenu = document.querySelector('#main-menu');
@@ -59,7 +60,7 @@ let currentRegion = {};
 let player = {};
 
 let actors = [];
-let objectsAtPlayerPosition = []
+let objectsAtPlayerPosition = [];
 
 let mouseoverRegion = {};
 
@@ -77,6 +78,7 @@ cnv.addEventListener('click', (e) => {
             mouseoverRegion.name + '\n' +
             mouseoverRegion.elevation + '00 ft \n' +
             mouseoverRegion.temperature + '° Fahrenheit \n' +
+            mouseoverRegion.settlement + ' Settlement Level \n' +
             mouseoverRegion.latitude + `' Latitude \n`
     }
     render();
@@ -365,6 +367,7 @@ function drawMenus() {
             world.regions[player.worldIndex].name + '\n' +
             world.regions[player.worldIndex].elevation + '00 ft \n' +
             world.regions[player.worldIndex].temperature + '° Fahrenheit \n' +
+            world.regions[player.worldIndex].settlement + ' Settlement Level \n' +
             world.regions[player.worldIndex].latitude + `' Latitude \n`
     }
 

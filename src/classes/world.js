@@ -21,8 +21,11 @@ class World {
             this.addElevationNoise();
 
             //add cities, villages, industrial and agricultural areas?
-            this.addKingdoms()
+            this.addKingdoms();
+            this.expandKingdoms();
+            this.contractKingdoms();
 
+            this.assignNames();
             this.assignImages();
             this.saveWorld();
         }
@@ -85,23 +88,63 @@ class World {
     }
 
     addKingdoms() {
-        for (let i = 400; i < 2000; i++) {
-            if (this.regions[i].elevation > 0) {
-                this.regions[i].settlement = true;
+        for (let k = 400; k < this.regions.length; k++) {
+            if (this.regions[k].elevation > 0) {
+                this.regions[k].settlement = 1;
                 break;
             }
         }
-        for (let j = 2000; j < 4000; j++) {
-            if (this.regions[j].elevation > 0) {
-                this.regions[j].settlement = true;
+        for (let k = 1000; k < this.regions.length; k++) {
+            if (this.regions[k].elevation > 0) {
+                this.regions[k].settlement = 1;
                 break;
-            }          
+            }
+        }
+        for (let k = 2000; k < this.regions.length; k++) {
+            if (this.regions[k].elevation > 0) {
+                this.regions[k].settlement = 1;
+                break;
+            }
+        }
+        for (let k = 3000; k < this.regions.length; k++) {
+            if (this.regions[k].elevation > 0) {
+                this.regions[k].settlement = 1;
+                break;
+            }
         }
         for (let k = 4000; k < this.regions.length; k++) {
             if (this.regions[k].elevation > 0) {
-                this.regions[k].settlement = true;
+                this.regions[k].settlement = 1;
                 break;
             }
+        }
+        for (let k = 5000; k < this.regions.length; k++) {
+            if (this.regions[k].elevation > 0) {
+                this.regions[k].settlement = 1;
+                break;
+            }
+        }
+    }
+
+    expandKingdoms(iterations = 10) {
+        for (let i = 1; i < iterations; i++) {
+            let matchingSettlements = this.regions.filter(reg => reg.settlement == 1)
+            matchingSettlements.forEach((reg) => {
+                reg.settlement = reg.settlement + 1;
+                let neighbors = this.getNeighboringRegions(reg.index);
+                neighbors = neighbors.map((reg) => { 
+                    if (reg && reg.elevation > 0 && reg.settlement < iterations && Math.random() > 0.3) { 
+                        reg.settlement = reg.settlement + 1 
+                    } 
+                })
+            })
+        }
+    }
+
+    contractKingdoms() {
+        let allSettledRegions = this.regions.filter((reg) => reg.settlement > 0)
+        for (let i = 0; i < allSettledRegions.length; i++) {
+            Math.random() > 0.6 ? allSettledRegions[i].settlement--: null;            
         }
     }
 
@@ -111,12 +154,18 @@ class World {
         }
     }
 
+    assignNames() {
+        for (let i = 0; i < this.regions.length; i++) {
+            this.regions[i].assignName();
+        }
+    }
+
     //Utils:
     findAppropriateStartingLocationForPlayer() {
         for (let i = 2800; i < this.regions.length; i++) {
             if (this.regions[i].elevation == 1) {
                 return [this.regions[i].x, this.regions[i].y]
-            }            
+            }
         }
     }
 

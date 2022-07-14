@@ -1,6 +1,6 @@
 class SciFi {
-    VOWELS = "aeiouy".split('');
-    CONSONANTS = "bcdfghjklmnpqrstvwxz".split('');
+    VOWELS = ["a","a","e","e","i","o","u","y","ea","ae","ee","oe","oo","ie","ou"]
+    CONSONANTS = ["b","c","ch","d","f","g","h","j","k","l","m","n","p","q","r","s","t","th","v","w","x","z"]
     SYLLABLES = []
     STEPS_PER_DAY = 600
     constructor() {
@@ -16,7 +16,16 @@ class SciFi {
         for (let i = 0; i < syllables; i++) {
             retStr += this.SYLLABLES[Math.floor(Math.random() * this.SYLLABLES.length)]
         }
+        Math.random() > .8 ? retStr += 'e' : retStr += this.CONSONANTS[Math.floor(Math.random() * this.CONSONANTS.length)]
         return retStr
+    }
+
+    generateRegionName(region) {
+        if (region.settlement > 0) {
+            return this.generateSciFiName(3) + ' town';
+        } else {
+            return this.generateSciFiName(3) + ' country';
+        }
     }
 
     convertStepsToTimeString(steps) {
