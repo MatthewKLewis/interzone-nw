@@ -145,17 +145,15 @@ class Region {
 
     //ActiveRendering
     setLightLevels() {
-        //set light levels to zero for all
+        //set all light levels to zero
         this.tiles.forEach(tile => {tile.lightLevel = 0})
 
         //for each light, find the tiles which are X distance from the light's X, and Y from Y (Pythagorean)
         //and set the distance from the light in the tile
         //then for each tile neighboring the light, set the new lightLevel as the intensity of the light minus the distance.
         for (let i = 0; i < this.lights.length; i++) {
-
-            let lightsNeighboringTiles = []
+            let lightsNeighboringTiles = [];
             let lightIsInterior = this.tiles[this.lights[i].regionIndex].interior;
-
             this.tiles.forEach((tile)=>{
                 let distanceFromLight = Math.sqrt( 
                     Math.pow(Math.abs(tile.x - this.lights[i].x),2) + 
@@ -165,7 +163,7 @@ class Region {
                     tile.distanceFromLight = distanceFromLight //property stuffing
                     lightsNeighboringTiles.push(tile)
                 }
-            })
+            });
             lightsNeighboringTiles.forEach(tile => {
                 let newPotentialLightLevel = this.lights[i].lightIntensity - tile.distanceFromLight
                 if (newPotentialLightLevel > tile.lightLevel) {
@@ -173,8 +171,7 @@ class Region {
                 } else {
                     tile.lightLevel++;
                 }
-            })
-
+            });
         }
     }
 }

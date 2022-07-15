@@ -63,14 +63,16 @@ let actors = [];
 let objectsAtPlayerPosition = [];
 
 let mouseoverRegion = {};
+let pointerX = 0;
+let pointerY = 0;
 
 //#endregion
 
 //#region [rgba(255,0,125,0.15)] CONTROLLER
 
 cnv.addEventListener('click', (e) => {
-    let pointerX = e.clientX - e.target.offsetLeft;
-    let pointerY = e.clientY - e.target.offsetTop;
+    pointerX = e.clientX - e.target.offsetLeft;
+    pointerY = e.clientY - e.target.offsetTop;
 
     if (worldMap) {
         mouseoverRegion = world.getRegionAtMouse(pointerX, pointerY);
@@ -347,12 +349,17 @@ function render() {
     drawWorldOrRegion();
     !worldMap && drawItems();
     !worldMap && drawActors();
-    mouseoverRegion && drawSelectedTile();
+    //mouseoverRegion && drawSelectedTile();
+    drawLineFromPlayerToClick()
     drawPlayer();
 }
 
 function drawSelectedTile() {
     ctx.drawImage(imageManager.images.get('highlight.png'), mouseoverRegion.x * PIXEL_WIDTH, mouseoverRegion.y * PIXEL_WIDTH)
+}
+
+function drawLineFromPlayerToClick() {
+    ctx.drawImage(imageManager.images.get('powerup.png'), pointerX - 8, pointerY - 8);
 }
 
 function drawMenus() {
