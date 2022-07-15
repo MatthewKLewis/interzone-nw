@@ -91,20 +91,6 @@ cnv.addEventListener('click', (e) => {
     render();
 })
 
-cnv.addEventListener('mousemove', (e) => {
-    // let pointerX = e.clientX - e.target.offsetLeft;
-    // let pointerY = e.clientY - e.target.offsetTop;
-
-    // if (worldMap) {
-    //     mouseoverRegion = world.getRegionAtMouse(pointerX, pointerY);
-    //     lookDisplay.innerText =
-    //         mouseoverRegion.name + '\n' +
-    //         mouseoverRegion.elevation + '00 ft \n' +
-    //         mouseoverRegion.temperature + '° Fahrenheit \n' +
-    //         mouseoverRegion.latitude + `' Latitude \n`
-    // }
-})
-
 document.addEventListener('keydown', (e) => {
     //console.log('player acts')
     if (worldMap) {
@@ -166,6 +152,11 @@ document.addEventListener('keydown', (e) => {
                 break;
             case 'm':
                 modaler.toggleVisibility()
+                break;
+            case 'k':
+                logger.addLog("KILLING THE LIGHTS")
+                currentRegion.lights = [];
+                advanceTime(1);
                 break;
             case 'Escape':
                 quit();
@@ -267,6 +258,7 @@ function continueGame() {
 
 function descendToRegion() {
     logger.addLog("moving down to region at " + player.worldIndex)
+    mouseoverRegion = {}
 
     if (fs.existsSync(`./assets/world/region${player.worldIndex}.json`)) {
         logger.addLog("file exists")
@@ -355,7 +347,7 @@ function render() {
     drawWorldOrRegion();
     !worldMap && drawItems();
     !worldMap && drawActors();
-    mouseoverRegion && drawSelectedTile()
+    mouseoverRegion && drawSelectedTile();
     drawPlayer();
 }
 

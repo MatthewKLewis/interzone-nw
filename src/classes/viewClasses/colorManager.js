@@ -42,10 +42,6 @@ class ColorManager {
 
     getColorForRegionTile(tile) {
 
-        if (tile.interior) {
-            return 'rgba(70, 70, 70, 1)';
-        }
-
         if (tile.wall == 1) {
             return 'rgba(10, 10, 10, 1)';
         }
@@ -55,9 +51,9 @@ class ColorManager {
         let bluChan = 0;
         let alpChan = 1;
 
-        redChan = this.decimalTo255(2);
-        greChan = this.decimalTo255(2);
-        bluChan = this.decimalTo255(2);
+        redChan = this.decimalTo255(tile.lightLevel);
+        greChan = this.decimalTo255(tile.lightLevel);
+        bluChan = this.decimalTo255(tile.lightLevel);
 
         if (Math.random() > 0.9) {
             redChan += 3;

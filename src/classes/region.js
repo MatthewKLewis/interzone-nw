@@ -119,6 +119,14 @@ class Region {
             }
         }
     }
+    getNeighboringTiles(tileIndex) {
+        let neiReg = []
+        neiReg[0] = this.tiles[tileIndex - 88] || null; //NORTH
+        neiReg[1] = this.tiles[tileIndex + 1] || null;  //EAST
+        neiReg[2] = this.tiles[tileIndex + 88] || null; //SOUTH
+        neiReg[3] = this.tiles[tileIndex - 1] || null;  //WEST
+        return neiReg;
+    }
     getTileAtMouse(x, y) {
         let tileX = Math.floor(x / 16)
         let tileY = Math.floor(y / 16)
@@ -137,8 +145,15 @@ class Region {
 
     //ActiveRendering
     setLightLevels() {
-        console.log('settting light levels in ' + this.name);
-
+        let neighboringTiles = []
+        this.tiles.forEach(tile => {tile.lightLevel = 0})
+        for (let i = 0; i < this.lights.length; i++) {
+            this.tiles[this.lights[i].regionIndex].lightLevel = 5;
+            neighboringTiles = this.getNeighboringTiles(this.lights[i].regionIndex);
+            neighboringTiles.forEach(tile => {
+                tile.lightLevel = 3
+            })
+        }
     }
 }
 
