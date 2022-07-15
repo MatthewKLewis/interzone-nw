@@ -81,6 +81,13 @@ cnv.addEventListener('click', (e) => {
             mouseoverRegion.settlement + ' Settlement Level ' + (mouseoverRegion.settlementName ? mouseoverRegion.settlementName : '') + '\n'
             mouseoverRegion.latitude + `' Latitude \n`
     }
+    else { //regionMap
+        mouseoverTile = currentRegion.getTileAtMouse(pointerX, pointerY);
+        lookDisplay.innerText =
+            mouseoverTile.wall + 'wall \n' +
+            mouseoverTile.interior + 'interior \n' +
+            mouseoverTile.lightLevel + `' photons \n`
+    }
     render();
 })
 
@@ -216,6 +223,8 @@ function worldActs() {
             logger.addLog("You notice something under your foot..." + objectsAtPlayerPosition[0].name + '!')
             console.log(objectsAtPlayerPosition)
         }
+
+        currentRegion.setLightLevels()
 
         //Enemy Movement and Attacks
         //Player Movement and Attacks
@@ -378,6 +387,7 @@ function drawWorldOrRegion() {
         for (let i = 0; i < world.regions.length; i++) {
             ctx.fillStyle = colorManager.getColorForWorldTile(world.regions[i]);
             ctx.fillRect(world.regions[i].x * PIXEL_WIDTH, world.regions[i].y * PIXEL_WIDTH, PIXEL_WIDTH, PIXEL_WIDTH);
+            
             if (world.regions[i].tileUrl) {
                 ctx.drawImage(imageManager.images.get(world.regions[i].tileUrl), 
                     world.regions[i].x * PIXEL_WIDTH, 
@@ -389,6 +399,7 @@ function drawWorldOrRegion() {
         for (let i = 0; i < currentRegion.tiles.length; i++) {
             ctx.fillStyle = colorManager.getColorForRegionTile(currentRegion.tiles[i]);
             ctx.fillRect(currentRegion.tiles[i].x * PIXEL_WIDTH, currentRegion.tiles[i].y * PIXEL_WIDTH, PIXEL_WIDTH, PIXEL_WIDTH);
+
             if (currentRegion.tiles[i].tileUrl) {
                 ctx.drawImage(imageManager.images.get(currentRegion.tiles[i].tileUrl), 
                     currentRegion.tiles[i].x * PIXEL_WIDTH, 
@@ -404,6 +415,13 @@ function drawItems() {
             ctx.drawImage(imageManager.images.get(currentRegion.items[i].tileUrl), 
                 currentRegion.items[i].x * PIXEL_WIDTH, 
                 currentRegion.items[i].y * PIXEL_WIDTH)
+        }    
+    }
+    for (let i = 0; i < currentRegion.lights.length; i++) {
+        if (currentRegion.lights[i].tileUrl) {
+            ctx.drawImage(imageManager.images.get(currentRegion.lights[i].tileUrl), 
+                currentRegion.lights[i].x * PIXEL_WIDTH, 
+                currentRegion.lights[i].y * PIXEL_WIDTH)
         }    
     }
 }

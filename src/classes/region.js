@@ -1,6 +1,7 @@
 const fs = require('fs');
 const Tile = require('./tile');
 const Weapon = require('./objects/weapon')
+const Light = require('./objects/light')
 
 //
 // The region class reaches down into the tiles and alters their character and images.
@@ -10,6 +11,7 @@ class Region {
     tiles = [];
     items = [];
     actors = [];
+    lights = [];
     constructor(regionPeek = {}, regionFullData = {}) {
         if (regionPeek) { //create a brand new region
             this.name = regionPeek.name;
@@ -19,7 +21,7 @@ class Region {
             this.elevation = regionPeek.elevation;
             this.latitude = regionPeek.latitude;
             this.temperature = regionPeek.temperature;
-            this.overworldTileUrl = regionPeek.tileUrl
+            this.overworldTileUrl = 'grass.png'
             this.initialNoise();
 
             //do something here. take on a characterization. tell the tiles to do something.
@@ -27,6 +29,7 @@ class Region {
 
             //add npcs
             this.placeDwellings();
+            this.placeLights();
 
             //finally determine the entry point
             this.entryPoint = this.determineEntryPoint();
@@ -36,15 +39,20 @@ class Region {
         }
         else if (regionFullData) { //recreate the region from file
             this.name = regionFullData.name
+
             this.x = regionFullData.x
             this.y = regionFullData.y
             this.index = regionFullData.index
+            this.entryPoint = regionFullData.entryPoint
+
             this.elevation = regionFullData.elevation
             this.latitude = regionFullData.latitude
             this.temperature = regionFullData.temperature
+
             this.tiles = regionFullData.tiles
             this.items = regionFullData.items
-            this.entryPoint = regionFullData.entryPoint
+            this.actors = regionFullData.actors
+            this.lights = regionFullData.lights
         }
         else {
             //addLog('error creating region')
@@ -67,19 +75,19 @@ class Region {
         }
     }
 
-    placeDwellings(iterations = 1) {
+    placeDwellings(iterations = 6) {
         for (let i = 0; i < iterations; i++) {
-            let bldgWidth = this.randBetween(5, 10);
-            let bldgHeight = this.randBetween(5, 10);
-            let upLeftCorner = [this.randBetween(1, 87), this.randBetween(1, 63)];
-            let buildingFloorTiles = this.tiles.filter(tile =>
-                tile.x > upLeftCorner[0] && tile.x < upLeftCorner[0] + bldgWidth &&
-                tile.y > upLeftCorner[1] && tile.y < upLeftCorner[1] + bldgHeight
+            let bldgWidth = this.randBetween(5, 12);
+            let bldgHeight = this.randBetween(5, 12);
+            let upLeftCorner = [this.randBetween(10, 60), this.randBetween(10, 50)];
+            let buildingTiles = this.tiles.filter(tile =>
+                tile.x >= upLeftCorner[0] && tile.x <= upLeftCorner[0] + bldgWidth &&
+                tile.y >= upLeftCorner[1] && tile.y <= upLeftCorner[1] + bldgHeight
             );
-            buildingFloorTiles.forEach(tile => {
-                tile.tileUrl = 'ice.png'
+            buildingTiles.forEach(tile => {
+                tile.interior = true;
             })
-            let buildingBorderTiles = this.tiles.filter(tile => 
+            let buildingBorderTiles = buildingTiles.filter(tile => 
                 (tile.x >= upLeftCorner[0] && tile.x <= upLeftCorner[0] + bldgWidth && (tile.y == upLeftCorner[1] || tile.y == upLeftCorner[1] + bldgHeight)) ||   //
                 (tile.y >= upLeftCorner[1] && tile.y <= upLeftCorner[1] + bldgHeight && (tile.x == upLeftCorner[0] || tile.x == upLeftCorner[0] + bldgWidth))
             );
@@ -87,6 +95,14 @@ class Region {
                 tile.wall = Math.random() > 0.2 ? 1 : 0
             })
         }         
+    }
+
+    placeLights() {
+        for (let y = 0; y < 64; y++) {
+            for (let x = 0; x < 88; x++) {
+                Math.random() > 0.999 && this.lights.push(new Light(x, y, 'Lamp', 'Increate'));
+            }
+        }
     }
 
     assignImages() {
@@ -117,6 +133,12 @@ class Region {
     }
     randBetween(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    //ActiveRendering
+    setLightLevels() {
+        console.log('settting light levels in ' + this.name);
+
     }
 }
 
