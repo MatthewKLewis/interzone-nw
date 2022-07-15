@@ -1,4 +1,4 @@
-const SciFi = require('./scifi');
+const SciFi = require('../scifi');
 const sfu = new SciFi()
 
 class RegionPeek {

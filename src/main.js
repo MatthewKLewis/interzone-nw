@@ -12,8 +12,8 @@ const ImageManager = require('./classes/viewClasses/imageManager');
 const SoundManager = require('./classes/viewClasses/soundManager');
 const Modaler = require('./classes/viewClasses/modal');
 
-const Region = require('./classes/region');
-const World = require('./classes/world');
+const Region = require('./classes/geographic/region');
+const World = require('./classes/geographic/world');
 
 //Util Classes
 const d = new Defaults();

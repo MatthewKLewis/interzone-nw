@@ -10,7 +10,7 @@ class Actor {
         this.X = X;
         this.Y = Y;
         this.lastX = X;
-        this.lasyY = Y;
+        this.lastY = Y;
 
         this.worldIndex = this.X + (this.Y * 88);
         this.regionIndex = this.x + (this.y * 88);

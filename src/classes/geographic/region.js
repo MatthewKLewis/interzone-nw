@@ -1,7 +1,7 @@
 const fs = require('fs');
 const Tile = require('./tile');
-const Weapon = require('./objects/weapon')
-const Light = require('./objects/light')
+const Weapon = require('../objects/weapon')
+const Light = require('../objects/light')
 
 //
 // The region class reaches down into the tiles and alters their character and images.
@@ -100,7 +100,7 @@ class Region {
     placeLights() {
         for (let y = 0; y < 64; y++) {
             for (let x = 0; x < 88; x++) {
-                Math.random() > 0.999 && this.lights.push(new Light(x, y, 'Lamp', 'Increate'));
+                Math.random() > 0.999 && this.lights.push(new Light(x, y, 'Lamp', 'Increate', Math.floor(Math.random() * 10)));
             }
         }
     }
@@ -145,14 +145,36 @@ class Region {
 
     //ActiveRendering
     setLightLevels() {
-        let neighboringTiles = []
+        //set light levels to zero for all
         this.tiles.forEach(tile => {tile.lightLevel = 0})
+
+        //for each light, find the tiles which are X distance from the light's X, and Y from Y (Pythagorean)
+        //and set the distance from the light in the tile
+        //then for each tile neighboring the light, set the new lightLevel as the intensity of the light minus the distance.
         for (let i = 0; i < this.lights.length; i++) {
-            this.tiles[this.lights[i].regionIndex].lightLevel = 5;
-            neighboringTiles = this.getNeighboringTiles(this.lights[i].regionIndex);
-            neighboringTiles.forEach(tile => {
-                tile.lightLevel = 3
+
+            let lightsNeighboringTiles = []
+            let lightIsInterior = this.tiles[this.lights[i].regionIndex].interior;
+
+            this.tiles.forEach((tile)=>{
+                let distanceFromLight = Math.sqrt( 
+                    Math.pow(Math.abs(tile.x - this.lights[i].x),2) + 
+                    Math.pow(Math.abs(tile.y - this.lights[i].y),2) 
+                )
+                if (distanceFromLight < this.lights[i].lightIntensity && tile.interior == lightIsInterior) {
+                    tile.distanceFromLight = distanceFromLight //property stuffing
+                    lightsNeighboringTiles.push(tile)
+                }
             })
+            lightsNeighboringTiles.forEach(tile => {
+                let newPotentialLightLevel = this.lights[i].lightIntensity - tile.distanceFromLight
+                if (newPotentialLightLevel > tile.lightLevel) {
+                    tile.lightLevel = newPotentialLightLevel;
+                } else {
+                    tile.lightLevel++;
+                }
+            })
+
         }
     }
 }
