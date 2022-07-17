@@ -46,67 +46,52 @@
         <canvas id="canvas"></canvas>
         <div class="menu">
             <div class="player-interface">
-                
                 <div class="tab-row">
                     <button id="proximity-tab" onclick="changePlayerMenuTo('proximity')" class="tab active">proximity</button>
                     <button id="journal-tab" onclick="changePlayerMenuTo('journal')" class="tab">journal</button>
                     <button id="inventory-tab" onclick="changePlayerMenuTo('inventory')" class="tab">inventory</button>
                     <button id="character-tab" onclick="changePlayerMenuTo('character')" class="tab">character</button>
                 </div>
-
                 <div id="proximity" class="sub-interface">
                     <p id="timer">Time</p>
-
                     <p id="look"        class="boxed"></p>
                     <p id="under-foot"  class="boxed"></p>
-
-                    <button onclick="openModal('pickup')">Pick Up</button>
-
+                    <div id="interactions"></div>
                 </div>
-
                 <div id="inventory" class="sub-interface hide">
                     <p>inventory:</p>
                 </div>
-
                 <div id="journal" class="sub-interface hide">
                     <p>journal:</p>
                 </div>
-
                 <div id="character" class="sub-interface hide">
                     <p>name</p>
                     <p id="player-name"></p>
-
                     <p>experience</p>
                     <progress id="experience"></progress>
-
                     <p>health</p>
                     <progress id="healthbar"></progress>
-
                     <p>fatigue</p>
                     <progress id="healthbar"></progress>
-
                     <p>hunger</p>
                     <progress id="healthbar"></progress>
-
                     <p>thirst</p>
                     <progress id="healthbar"></progress>
-
                 </div>
-
             </div>
             <div class="admin-log" id="admin-log">
                 <hr>
                 <!--Admin logs will fill here-->
             </div>
         </div>
-        <footer><marquee direction="right">▯▯▯▯</marquee></footer>
+        <footer>
+        <!-- <marquee direction="right">▯▯▯▯</marquee> -->
+        </footer>
     </div>
-
     <div id="modal" class="modal hide">
         <div id="modal-content"></div>
         <button onclick="closeModal()">Close</button>
-    </div>    
-
+    </div>
     <script src="./main.js"></script>
 </body>
 </html>

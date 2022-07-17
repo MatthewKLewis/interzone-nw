@@ -5,7 +5,7 @@ class NPC extends Actor {
         super(name, x, y, alive);
         this.lastWorldPositionX = x;
         this.lastWorldPositionY = y;
-        this.savePlayer();
+        this.tileUrl = 'npc.png'
     }
 
     update() {
@@ -25,4 +25,4 @@ class NPC extends Actor {
     }
 }
 
-module.exports = Player;
+module.exports = NPC;

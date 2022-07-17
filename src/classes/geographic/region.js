@@ -2,6 +2,7 @@ const fs = require('fs');
 const Tile = require('./tile');
 const Weapon = require('../objects/weapon')
 const Light = require('../objects/light')
+const NPC = require('../actors/npc')
 
 //
 // The region class reaches down into the tiles and alters their character and images.
@@ -30,6 +31,7 @@ class Region {
             //add npcs
             this.placeDwellings();
             this.placeLights();
+            this.placeNPCs()
 
             //finally determine the entry point
             this.entryPoint = this.determineEntryPoint();
@@ -102,6 +104,14 @@ class Region {
             for (let x = 0; x < 88; x++) {
                 Math.random() > 0.999 && this.lights.push(new Light(x, y, 'Lamp', 'Increate', Math.floor(Math.random() * 10)));
             }
+        }
+    }
+
+    placeNPCs() {
+        for (let i = 0; i < this.tiles.length; i++) {
+            if (!this.tiles[i].wall) {
+                Math.random() > 0.999 && this.actors.push(new NPC('Grosvenor', this.tiles[i].x, this.tiles[i].y, true))
+            }            
         }
     }
 

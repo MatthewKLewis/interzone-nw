@@ -7,6 +7,7 @@ class Modaler {
         this.contentElement = contentElement;
         this.htmlElement = htmlElement;
         this.htmlElement.classList.add('hide');
+        this.callback = () => {console.log('empty callback!')}
     }
 
     show() {
@@ -17,7 +18,7 @@ class Modaler {
         this.htmlElement.classList.add('hide')
     }
 
-    open(panelName, data) {
+    open(panelName, data, callback) {
         if (!this.visible) {
             this.htmlElement.classList.remove('hide');
             switch (panelName) {
@@ -31,6 +32,7 @@ class Modaler {
                     break;
             }
             this.visible = true;
+            this.callback = callback;
         }
     }
 
@@ -47,6 +49,8 @@ class Modaler {
             this.contentElement.removeChild(this.contentElement.firstChild);
         }
         this.htmlElement.classList.add('hide');
+        this.visible = false;
+        this.callback()
     }
 }
 

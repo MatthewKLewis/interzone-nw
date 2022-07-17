@@ -18,6 +18,8 @@ class Actor {
         this.alive = alive;
         this.maxHealth = maxHealth;
         this.health = maxHealth;
+
+        this.tileUrl = 'npc.png'
     }
 }
 

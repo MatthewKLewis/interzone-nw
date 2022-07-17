@@ -1,19 +1,15 @@
 //#region [rgba(0,0,255,0.15)] DEPENDENCIES
 const fs = require('fs');
-
 const SciFi = require('./classes/scifi');
 const Defaults = require('./classes/defaults')
-
 const Player = require('./classes/actors/player');
-
+const World = require('./classes/geographic/world');
+const Region = require('./classes/geographic/region');
 const Logger = require('./classes/viewClasses/logger');
+const Modaler = require('./classes/viewClasses/modal');
 const ColorManager = require('./classes/viewClasses/colorManager');
 const ImageManager = require('./classes/viewClasses/imageManager');
 const SoundManager = require('./classes/viewClasses/soundManager');
-const Modaler = require('./classes/viewClasses/modal');
-
-const Region = require('./classes/geographic/region');
-const World = require('./classes/geographic/world');
 
 //Util Classes
 const d = new Defaults();
@@ -28,14 +24,15 @@ const colorManager = new ColorManager();
 
 const cnv = document.querySelector('#canvas');
 const mainMenu = document.querySelector('#main-menu');
+const journalTab = document.querySelector('#journal-tab');
 const proximityTab = document.querySelector('#proximity-tab');
 const inventoryTab = document.querySelector('#inventory-tab');
-const journalTab = document.querySelector('#journal-tab');
 const characterTab = document.querySelector('#character-tab');
+const journalMenu = document.querySelector('#journal');
 const proximityMenu = document.querySelector('#proximity');
 const inventoryMenu = document.querySelector('#inventory');
-const journalMenu = document.querySelector('#journal');
 const characterMenu = document.querySelector('#character');
+const interactionButtonParent = document.querySelector('#interactions');
 
 //proximity
 const timer = document.querySelector('#timer');
@@ -60,6 +57,8 @@ let currentRegion = {};
 let player = {};
 
 let actors = [];
+
+let npcsNearPlayer = [];
 let objectsAtPlayerPosition = [];
 
 let mouseoverRegion = {};
@@ -173,15 +172,17 @@ document.addEventListener('keydown', (e) => {
 function openModal(panelName) {
     switch (panelName) {
         case 'pickup':
+            logger.addLog("open inventory");
             modaler.open(panelName, objectsAtPlayerPosition, ()=>{
                 logger.addLog("closed inventory");
             })
             break;    
         case 'dialog':
-            modaler.open('dialog', {}, ()=>{
-                logger.addLog("closed inventory");
+            logger.addLog("open dialog");
+            modaler.open('dialog', npcsNearPlayer, ()=>{
+                logger.addLog("closed dialog");
             })
-            break;    
+            break;
         default:
             break;
     }
@@ -210,11 +211,27 @@ function worldActs() {
             player.moveBack(false);
         }
 
+        //ATTACK
+        let attackedActor = currentRegion.actors.find(actor => actor.x == player.x && actor.y == player.y)
+        if (attackedActor) {
+            logger.addLog("Attacking..." + attackedActor.name + '!')
+            player.moveBack(false);
+        }
+
         //GAMEOBJECTS
         objectsAtPlayerPosition = currentRegion.items.filter(item => item.regionIndex == player.regionIndex);
         if (objectsAtPlayerPosition.length > 0) {
             logger.addLog("You notice something under your foot..." + objectsAtPlayerPosition[0].name + '!')
-            console.log(objectsAtPlayerPosition)
+            //console.log(objectsAtPlayerPosition)
+        }
+
+        //NEARBY NPCS
+        npcsNearPlayer = currentRegion.actors.filter(actor => 
+            (actor.x == player.x || actor.x == player.x + 1 || actor.x == player.x - 1) && 
+            (actor.y == player.y || actor.y == player.y + 1 || actor.y == player.y - 1));
+        if (npcsNearPlayer.length > 0) {
+            logger.addLog("You are standing near..." + npcsNearPlayer[0].name + '!')
+            //console.log(npcsNearPlayer)
         }
 
         currentRegion.setLightLevels()
@@ -345,7 +362,8 @@ function changePlayerMenuTo(newMenu) {
 
 //#region [rgba(0,125,255,0.15)] VIEW
 function render() {
-    drawMenus();
+    drawInterfaceDetails();
+    drawInteractionButtons();
     drawWorldOrRegion();
     !worldMap && drawItems();
     !worldMap && drawActors();
@@ -362,7 +380,7 @@ function drawLineFromPlayerToClick() {
     ctx.drawImage(imageManager.images.get('powerup.png'), pointerX - 8, pointerY - 8);
 }
 
-function drawMenus() {
+function drawInterfaceDetails() {
     timer.innerText = sciFiUtility.convertStepsToTimeString(time);
     playerNameDisplay.innerText = player.name;
     healthbarDisplay.value = player.health;
@@ -426,7 +444,13 @@ function drawItems() {
 }
 
 function drawActors() {
-    //
+    for (let i = 0; i < currentRegion.actors.length; i++) {
+        if (currentRegion.actors[i].tileUrl) {
+            ctx.drawImage(imageManager.images.get(currentRegion.actors[i].tileUrl), 
+                currentRegion.actors[i].x * PIXEL_WIDTH, 
+                currentRegion.actors[i].y * PIXEL_WIDTH)
+        }    
+    }
 }
 
 function drawPlayer() {
@@ -436,6 +460,26 @@ function drawPlayer() {
     }
     else {//regionMap
         ctx.drawImage(imageManager.images.get('player.png'), player.x * PIXEL_WIDTH, player.y * PIXEL_WIDTH)
+    }
+}
+
+function drawInteractionButtons() {
+    while (interactionButtonParent.firstChild) {
+        interactionButtonParent.removeChild(interactionButtonParent.firstChild);
+    }
+
+    let buttonEl = document.createElement('button')
+    buttonEl.classList.add('interaction-button')
+    if (objectsAtPlayerPosition.length > 0) {
+        buttonEl.innerText = "Pick Up"
+        buttonEl.addEventListener('click', ()=> {openModal('pickup')})
+        interactionButtonParent.appendChild(buttonEl)
+    }    
+
+    if (npcsNearPlayer.length > 0) {
+        buttonEl.innerText = "Speak"
+        buttonEl.addEventListener('click', ()=> {openModal('dialog')})
+        interactionButtonParent.appendChild(buttonEl)
     }
 }
 

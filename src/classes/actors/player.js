@@ -4,7 +4,8 @@ const Actor = require('./actor');
 class Player extends Actor {
     constructor(playerJSON) {
         super(playerJSON.name, playerJSON.x, playerJSON.y, playerJSON.X, playerJSON.Y, playerJSON.alive, playerJSON.maxHealth);
-        this.experience = playerJSON.experience
+        this.experience = playerJSON.experience;
+        this.tileUrl = 'player.png'
         this.savePlayer();
     }
 
